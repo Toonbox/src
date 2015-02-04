@@ -146,7 +146,7 @@ class ToonTeleportPanel(DirectFrame):
 
     def enterCheckAvailability(self):
         myId = base.localAvatar.getDoId()
-        base.localAvatar.d_teleportQuery(myId, sendToId=self.avId)
+        base.cr.ttiFriendsManager.d_teleportQuery(self.avId)
         self['text'] = TTLocalizer.TeleportPanelCheckAvailability % self.avName
         self.accept('teleportResponse', self.__teleportResponse)
         self.bCancel.show()
@@ -240,7 +240,10 @@ class ToonTeleportPanel(DirectFrame):
         self.bNo.hide()
 
     def enterTeleport(self, shardId, hoodId, zoneId):
-        teleportNotify.debug('enterTeleport%s' % ((shardId, hoodId, zoneId),))
+        shardName = base.cr.getShardName(shardId)
+        if shardName is None:
+            shardName = 'unknown'
+        print 'enterTeleport: %r, %r, %r, %r, %r' % (shardId, shardName, hoodId, zoneId, self.avId)
         hoodsVisited = base.localAvatar.hoodsVisited
         canonicalHoodId = ZoneUtil.getCanonicalZoneId(hoodId)
         if hoodId == ToontownGlobals.MyEstate:

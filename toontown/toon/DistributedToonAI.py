@@ -6,6 +6,7 @@ from direct.distributed.PyDatagram import PyDatagram
 from direct.task import Task
 from pandac.PandaModules import *
 import random
+import time
 import re
 
 import Experience
@@ -191,6 +192,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.teleportOverride = 0
         self._gmDisabled = False
         self.promotionStatus = [0, 0, 0, 0]
+        self.buffs = []
 
     def generate(self):
         DistributedPlayerAI.DistributedPlayerAI.generate(self)
@@ -427,22 +429,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             if self.dna.gloveColor != 0:
                 self.dna.gloveColor = 0
                 valid = False
-            bodyColors = (self.dna.headColor, self.dna.armColor, self.dna.legColor)
-            if (26 in bodyColors) or (0 in bodyColors):
-                if (bodyColors[1] != bodyColors[0]) or (bodyColors[2] != bodyColors[0]):
-                    self.dna.armColor = bodyColors[0]
-                    self.dna.legColor = bodyColors[0]
-                    valid = False
-                if ((self.dna.getAnimal() != 'cat') and (26 in bodyColors)) or (
-                    (self.dna.getAnimal() != 'bear') and (0 in bodyColors)):
-                    if self.dna.getGender() == 'm':
-                        color = ToonDNA.defaultBoyColorList[0]
-                    else:
-                        color = ToonDNA.defaultGirlColorList[0]
-                    self.dna.headColor = color
-                    self.dna.armColor = color
-                    self.dna.legColor = color
-                    valid = False
             if not valid:
                 self.b_setDNAString(self.dna.makeNetString())
         return valid
@@ -1903,7 +1889,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     def setTeleportOverride(self, flag):
         self.teleportOverride = flag
         self.b_setHoodsVisited([1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,11000,12000,13000])
-        
+
     def b_setScavengerHunt(self, scavengerHuntArray):
         self.setScavengerHunt(scavengerHuntArray)
         self.d_setScavengerHunt(scavengerHuntArray)
@@ -2109,6 +2095,8 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         for i in xrange(len(msgs)):
             if msgs[i][0] == textId:
                 msgs[i][1] += 1
+                if msgs[i][1] > 32767:
+                    msgs[i][1] = 32767
                 self.b_setResistanceMessages(msgs)
                 return
 
@@ -4261,6 +4249,42 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
 
         return 0
 
+    def addBuff(self, id, duration):
+        buffCount = len(self.buffs)
+        if buffCount <= id:
+            self.buffs.extend([0] * ((id+1) - buffCount))
+        timestamp = int(time.time()) + (duration*60)
+        self.buffs[id] = timestamp
+        self.b_setBuffs(self.buffs)
+
+    def removeBuff(self, id):
+        if len(self.buffs) <= id:
+            self.notify.warning('tried to remove non-existent buff %d on avatar %d.' % (id, self.doId))
+            return
+        self.buffs[id] = 0
+        self.d_setBuffs(self.buffs)
+
+    def hasBuff(self, id):
+        if len(self.buffs) <= id:
+            return False
+        return self.buffs[id] != 0
+
+    def setBuffs(self, buffs):
+        self.buffs = buffs
+        for id, timestamp in enumerate(self.buffs):
+            if timestamp:
+                taskName = self.uniqueName('removeBuff-%s' % id)
+                taskMgr.remove(taskName)
+                delayTime = max(timestamp - int(time.time()), 0)
+                taskMgr.doMethodLater(delayTime, self.removeBuff, taskName, extraArgs=[id])
+
+    def d_setBuffs(self, buffs):
+        self.sendUpdate('setBuffs', [buffs])
+
+    def b_setBuffs(self, buffs):
+        self.setBuffs(buffs)
+        self.d_setBuffs(buffs)
+
 
 @magicWord(category=CATEGORY_PROGRAMMER, types=[str, int, int])
 def cheesyEffect(value, hood=0, expire=0):
@@ -4470,11 +4494,12 @@ def sos(count, name):
     return "You were given %d %s SOS cards." % (count, name)
 
 @magicWord(category=CATEGORY_PROGRAMMER, types=[int])
-def unites(value=99):
+def unites(value=32767):
     """
     Restock all resistance messages.
     """
     invoker = spellbook.getInvoker()
+    value = min(value, 32767)
     invoker.restockAllResistanceMessages(value)
     return 'Restocked %d unites!' % value
 
@@ -5094,3 +5119,32 @@ def nametagStyle(nametagStyle):
     target = spellbook.getTarget()
     target.b_setNametagStyle(nametagStyle)
     return 'Nametag style set to: %s.' % TTLocalizer.NametagFontNames[nametagStyle]
+
+@magicWord(category=CATEGORY_PROGRAMMER, types=[str, int, int])
+def disguise(command, suitIndex, value):
+    invoker = spellbook.getInvoker()
+
+    if suitIndex > 3:
+        return 'Invalid suit index: %s' % suitIndex
+    if value < 0:
+        return 'Invalid value: %s' % value
+
+    if command == 'parts':
+        invoker.cogParts[suitIndex] = 0
+        for _ in xrange(value):
+            invoker.giveGenericCogPart('fullSuit', suitIndex)
+        return 'Parts set.'
+    elif command == 'tier':
+        invoker.cogTypes[suitIndex] = value
+        invoker.d_setCogTypes(invoker.cogTypes)
+        return 'Tier set.'
+    elif command == 'level':
+        invoker.cogLevels[suitIndex] = value
+        invoker.d_setCogLevels(invoker.cogLevels)
+        return 'Level set.'
+    elif command == 'merits':
+        invoker.cogMerits[suitIndex] = value
+        invoker.d_setCogMerits(invoker.cogMerits)
+        return 'Merits set.'
+    else:
+        return 'Unknow command: %s' % command

@@ -106,6 +106,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.streetSign = None
         self.furnitureManager = None
         self.objectManager = None
+        self.openAvatarPanels = set()
         self.friendsMap = {}
         self.friendsOnline = {}
         self.friendsMapPending = 0
@@ -231,18 +232,9 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         for av in avList:
             if av.position == index:
                 avatarChoice = av
-                self.notify.info('================')
-                self.notify.info('Chose avatar id: %s' % av.id)
-                self.notify.info('Chose avatar name: %s' % av.name)
                 dna = ToonDNA.ToonDNA()
                 dna.makeFromNetString(av.dna)
-                if base.logPrivateInfo:
-                    self.notify.info('Chose avatar dna: %s' % (dna.asTuple(),))
-                    self.notify.info('Chose avatar position: %s' % av.position)
-                    self.notify.info('isPaid: %s' % self.isPaid())
-                    self.notify.info('freeTimeLeft: %s' % self.freeTimeLeft())
-                    self.notify.info('allowSecretChat: %s' % self.allowSecretChat())
-                self.notify.info('================')
+                print '__handleAvatarChooserDone: %r, %r, %r, %r' % (av.id, av.name, dna.asTuple(), av.position)
 
         if done == 'chose':
             self.avChoice.exit()
@@ -774,7 +766,6 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         return 1
 
     def removeFriend(self, avatarId):
-        #base.localAvatar.sendUpdate('friendsNotify', [base.localAvatar.doId, 1], sendToId=avatarId)
         self.ttiFriendsManager.d_removeFriend(avatarId)
 
     def clearFriendState(self):

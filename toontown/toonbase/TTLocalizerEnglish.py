@@ -169,7 +169,7 @@ lNext = 'Next'
 lQuit = 'Quit'
 lYes = 'Yes'
 lNo = 'No'
-sleep_auto_reply = '%s is sleeping right now'
+SleepAutoReply = '%s is sleeping right now.'
 lHQOfficerF = 'HQ Officer'
 lHQOfficerM = 'HQ Officer'
 MickeyMouse = 'Mickey Mouse'
@@ -1937,6 +1937,7 @@ AvatarPanelCogLevel = 'Level: %s'
 AvatarPanelCogDetailClose = lClose
 AvatarPanelDetail = 'Toon Details'
 AvatarPanelGroupInvite = 'Invite'
+AvatarPanelGroupMerge = 'Resulting in'
 AvatarPanelGroupRetract = 'Retract Invitation'
 AvatarPanelGroupMember = 'Already In Group'
 AvatarPanelGroupMemberKick = 'Remove'
@@ -9429,7 +9430,7 @@ TopToonsMarathonEnd = "The Top Toons New Year's Day Marathon has ended."
 WinterDecorationsStart = "It's Winter Holiday time in Toontown!"
 WinterDecorationsEnd = 'Winter Holiday is over - Happy New Year!'
 WackyWinterDecorationsStart = 'Brrr! Silly Meter goes from silly to chilly!'
-WinterCarolingStart = 'Caroling has come to Toontown. Sing for your Snowman Head - see the Blog for details!'
+WinterCarolingStart = 'Caroling has come to Toontown. Sing for your Snowman Head - see the News Post for details!'
 ExpandedClosetsStart = 'Attention Toons: For a limited time, Members can purchase the new 50 item Closet from the Cattlelog for the low price of 50 Jellybeans!'
 KartingTicketsHolidayStart = 'Get double tickets from Practice races at Goofy Speedway today!'
 IdesOfMarchStart = 'Toons go GREEN!'
@@ -9464,6 +9465,7 @@ BoardingGroupHide = 'Hide'
 BoardingGroupShow = 'Show Boarding Group'
 BoardingPartyInform = 'Create an elevator Boarding Group by clicking on another Toon and Inviting them.\nIn this area Boarding Groups cannot have more than %s Toons.'
 BoardingPartyTitle = 'Boarding Group'
+BoardingPartyTitleMerge = 'Merge Group'
 QuitBoardingPartyLeader = 'Disband'
 QuitBoardingPartyNonLeader = 'Leave'
 QuitBoardingPartyConfirm = 'Are you sure you want to quit this Boarding Group?'
@@ -9488,12 +9490,14 @@ BoardingInviteeInKickOutList = '%s had been removed by your leader. Only the lea
 BoardingInviteePendingIvite = '%s has a pending invite; try again later.'
 BoardingInviteeInElevator = '%s is currently busy; try again later.'
 BoardingInviteGroupFull = 'Your Boarding Group is already full.'
+BoardingGroupsToLarge = '%s is already in a different Boarding Group that is too large to merge.'
 BoardingAlreadyInGroup = 'You cannot accept this invitation because you are part of another Boarding Group.'
 BoardingGroupAlreadyFull = 'You cannot accept this invitation because the group is already full.'
 BoardingKickOutConfirm = 'Are you sure you want to remove %s?'
 BoardingPendingInvite = 'You need to deal with the\n pending invitation first.'
 BoardingCannotLeaveZone = 'You cannot leave this area because you are part of a Boarding Group.'
 BoardingInviteeMessage = '%s would like you to join their Boarding Group.'
+BoardingInviteeMergeMessage = '%s would like you merge with their Boarding Group.'
 BoardingInvitingMessage = 'Inviting %s to your Boarding Group.'
 BoardingInvitationRejected = '%s has rejected to join your Boarding Group.'
 BoardingMessageKickedOut = 'You have been removed from the Boarding Group.'
@@ -9695,7 +9699,7 @@ HolidayNamesInCalendar = {1: ('Summer Fireworks', 'Celebrate Summer with a firew
  54: ('Bean Counter Invasion', 'Stop the Bean Counter Cogs from invading Toontown!'),
  55: ('Double Talker Invasion', 'Stop the Double Talker Cogs from invading Toontown!'),
  56: ('Downsizer Invasion', 'Stop the Downsizer Cogs from invading Toontown!'),
- 57: ('Caroling', 'Sing for your Snowman Head! See the Blog for details!'),
+ 57: ('Caroling', 'Sing for your Snowman Head! See the News Post for details!'),
  59: ("ValenToon's Day", "Celebrate ValenToon's Day from Feb 09 to Feb 16!"),
  72: ('Yes Men Invasion', 'Stop the Yes Men Cogs from invading Toontown!'),
  73: ('Tightwad Invasion', 'Stop the Tightwad Cogs from invading Toontown!'),
@@ -9804,3 +9808,22 @@ YangAlreadyWhite = "You're already white!"
 YangPickColor = 'Are you sure you want to be a polar bear?'
 YangEnjoy = 'Enjoy! You are now permanently a polar bear.'
 YangGoodbye = 'Okay, then. See you later!'
+
+# Buffs
+
+buffIdStrings = {
+  0: ('Your movement speed will be slightly increased for the next %d %s.',
+      'Reward: Increased movement speed'),
+  1: ('Your gag accuracy will be slight increased for the next %d %s.',
+      'Reward: Increased gag accuracy')
+}
+
+def getBuffString(buffId, buffTime):
+    if buffTime < 60:
+        return buffIdStrings[buffId][0] % (buffTime, 'minutes')
+    else:
+        return buffIdStrings[buffId][0] % (buffTime / 60, 'hours')
+
+
+def getBuffPosterString(buffId):
+    return buffIdStrings[buffId][1]

@@ -11,13 +11,13 @@ set ASTRON_IP=127.0.0.1:7100
 set EVENTLOGGER_IP=127.0.0.1:7198
 
 rem Get the user input:
-set /P DISTRICT_NAME="District name (DEFAULT: Nuttyboro): " || ^
-set DISTRICT_NAME=Nuttyboro
+set /P DISTRICT_NAME="District name (DEFAULT: Boxy Bay): " || ^
+set DISTRICT_NAME=Boxy Bay
 set /P BASE_CHANNEL="Base channel (DEFAULT: 401000000): " || ^
 set BASE_CHANNEL=401000000
 
 echo ===============================
-echo Starting Toontown Infinite AI server...
+echo Starting Toonbox AI server...
 echo ppython: %PPYTHON_PATH%
 echo District name: %DISTRICT_NAME%
 echo Base channel: %BASE_CHANNEL%

@@ -143,14 +143,8 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
         print 'WhisperPlayer type %s from %s: %s' % (whisperType, playerId, chatString)
 
     def whisperSCTo(self, msgIndex, sendToId, toPlayer):
-        if toPlayer:
-            base.cr.playerFriendsManager.sendSCWhisper(sendToId, msgIndex)
-        elif sendToId not in base.cr.doId2do:
-            messenger.send('wakeup')
-            base.cr.ttiFriendsManager.d_whisperSCTo(sendToId, msgIndex)
-        else:
-            messenger.send('wakeup')
-            self.sendUpdate('setWhisperSCFrom', [self.doId, msgIndex], sendToId)
+        messenger.send('wakeup')
+        base.cr.ttiFriendsManager.d_whisperSCTo(sendToId, msgIndex)
 
     def setWhisperSCFrom(self, fromId, msgIndex):
         handle = base.cr.identifyAvatar(fromId)
@@ -169,15 +163,8 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
         return
 
     def whisperSCCustomTo(self, msgIndex, sendToId, toPlayer):
-        if toPlayer:
-            base.cr.playerFriendsManager.sendSCCustomWhisper(sendToId, msgIndex)
-            return
-        if sendToId not in base.cr.doId2do:
-            messenger.send('wakeup')
-            base.cr.ttiFriendsManager.d_whisperSCCustomTo(sendToId, msgIndex)
-            return
         messenger.send('wakeup')
-        self.sendUpdate('setWhisperSCCustomFrom', [self.doId, msgIndex], sendToId)
+        base.cr.ttiFriendsManager.d_whisperSCCustomTo(sendToId, msgIndex)
 
     def _isValidWhisperSource(self, source):
         return True
@@ -202,16 +189,8 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
         return
 
     def whisperSCEmoteTo(self, emoteId, sendToId, toPlayer):
-        print 'whisperSCEmoteTo %s %s %s' % (emoteId, sendToId, toPlayer)
-        if toPlayer:
-            base.cr.playerFriendsManager.sendSCEmoteWhisper(sendToId, emoteId)
-            return
-        if sendToId not in base.cr.doId2do:
-            messenger.send('wakeup')
-            base.cr.ttiFriendsManager.d_whisperSCEmoteTo(sendToId, emoteId)
-            return
         messenger.send('wakeup')
-        self.sendUpdate('setWhisperSCEmoteFrom', [self.doId, emoteId], sendToId)
+        base.cr.ttiFriendsManager.d_whisperSCEmoteTo(sendToId, emoteId)
 
     def setWhisperSCEmoteFrom(self, fromId, emoteId):
         handle = base.cr.identifyAvatar(fromId)
@@ -348,12 +327,7 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
 
         self.lastTeleportQuery = time.time()
 
-        if sendToId in base.cr.doId2do:
-            teleportNotify.debug('sending teleportQuery%s' % ((requesterId, sendToId),))
-            self.sendUpdate('teleportQuery', [requesterId], sendToId)
-        else:
-            teleportNotify.debug('sending TTIFM teleportQuery%s' % ((requesterId, sendToId),))
-            base.cr.ttiFriendsManager.d_teleportQuery(sendToId)
+        base.cr.ttiFriendsManager.d_teleportQuery(sendToId)
 
     def teleportQuery(self, requesterId):
         teleportNotify.debug('receieved teleportQuery(%s)' % requesterId)
@@ -400,44 +374,39 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
         self.lastFailedTeleportMessage[fromId] = now
         return 1
 
-    def d_teleportResponse(self, avId, available, shardId, hoodId, zoneId, sendToId = None):
-        teleportNotify.debug('sending teleportResponse%s' % ((avId,
-          available,
-          shardId,
-          hoodId,
-          zoneId,
-          sendToId),))
-        self.sendUpdate('teleportResponse', [avId,
-         available,
-         shardId,
-         hoodId,
-         zoneId], sendToId)
+    def d_teleportResponse(self, avId, available, shardId, hoodId, zoneId, sendToId):
+        teleportNotify.debug('sending teleportResponse%s' % ((avId, available,
+            shardId, hoodId, zoneId, sendToId),)
+        )
+
+        base.cr.ttiFriendsManager.d_teleportResponse(sendToId, available,
+            shardId, hoodId, zoneId
+        )
 
     def teleportResponse(self, avId, available, shardId, hoodId, zoneId):
-        teleportNotify.debug('received teleportResponse%s' % ((avId,
-          available,
-          shardId,
-          hoodId,
-          zoneId),))
-        messenger.send('teleportResponse', [avId,
-         available,
-         shardId,
-         hoodId,
-         zoneId])
+        teleportNotify.debug('received teleportResponse%s' % ((avId, available,
+            shardId, hoodId, zoneId),)
+        )
 
-    def d_teleportGiveup(self, requesterId, sendToId = None):
+        messenger.send('teleportResponse', [avId, available, shardId, hoodId, zoneId])
+
+    def d_teleportGiveup(self, requesterId, sendToId):
         teleportNotify.debug('sending teleportGiveup(%s) to %s' % (requesterId, sendToId))
-        self.sendUpdate('teleportGiveup', [requesterId], sendToId)
+
+        base.cr.ttiFriendsManager.d_teleportGiveup(sendToId)
 
     def teleportGiveup(self, requesterId):
         teleportNotify.debug('received teleportGiveup(%s)' % (requesterId,))
         avatar = base.cr.identifyAvatar(requesterId)
+
         if not self._isValidWhisperSource(avatar):
             self.notify.warning('teleportGiveup from non-toon %s' % requesterId)
             return
-        if avatar != None:
-            self.setSystemMessage(requesterId, OTPLocalizer.WhisperGiveupVisit % avatar.getName())
-        return
+
+        if avatar is not None:
+            self.setSystemMessage(requesterId,
+                OTPLocalizer.WhisperGiveupVisit % avatar.getName()
+            )
 
     def b_teleportGreeting(self, avId):
         if hasattr(self, 'ghostMode') and self.ghostMode:

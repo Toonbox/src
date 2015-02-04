@@ -467,8 +467,12 @@ class DistributedBossbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         avId = self.air.getAvatarIdFromSender()
         if not self.validate(avId, avId in self.involvedToons, 'hitBoss from unknown avatar'):
             return
-        self.validate(avId, bossDamage <= 3, 'invalid bossDamage %s' % bossDamage)
+        if bossDamage > 3:
+            self.air.writeServerEvent('suspicious', avId, 'Bossbot: Toon sent an attack over 3 damage!')
+            self.air.banManager.ban(avId, 0, 'hacking')
+            return
         if bossDamage < 1:
+            self.air.writeServerEvent('suspicious', avId, 'Bossbot: Toon sent an attack less than 1 damage!')
             return
         currState = self.getCurrentOrNextState()
         if currState != 'BattleFour':
@@ -594,7 +598,6 @@ class DistributedBossbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
                 toon.b_promote(self.deptIndex)
 
     def givePinkSlipReward(self, toon):
-        self.notify.debug('TODO give pink slip to %s' % toon)
         toon.addPinkSlips(self.battleDifficulty + 1)
 
     def getThreat(self, toonId):
@@ -744,31 +747,21 @@ class DistributedBossbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         return returnedToonId
 
     def getToonDifficulty(self):
-        highestCogSuitLevel = 0
-        totalCogSuitLevels = 0.0
-        totalNumToons = 0.0
+        totalCogSuitTier = 0
+        totalToons = 0
+
         for toonId in self.involvedToons:
             toon = simbase.air.doId2do.get(toonId)
             if toon:
-                toonLevel = toon.getNumPromotions(self.dept)
-                totalCogSuitLevels += toonLevel
-                totalNumToons += 1
-                if toon.cogLevels > highestCogSuitLevel:
-                    highestCogSuitLevel = toonLevel
+                totalToons += 1
+                totalCogSuitTier += toon.cogTypes[1]
 
-        if not totalNumToons:
-            totalNumToons = 1.0
-        averageLevel = totalCogSuitLevels / totalNumToons
-        self.notify.debug('toons average level = %f, highest level = %d' % (averageLevel, highestCogSuitLevel))
-        retval = min(averageLevel, self.maxToonLevels)
-        return retval
+        averageTier = math.floor(totalCogSuitTier / totalToons) + 1
+        return int(averageTier)
 
     def calcAndSetBattleDifficulty(self):
         self.toonLevels = self.getToonDifficulty()
-        numDifficultyLevels = len(ToontownGlobals.BossbotBossDifficultySettings)
-        battleDifficulty = int(self.toonLevels / self.maxToonLevels * numDifficultyLevels)
-        if battleDifficulty >= numDifficultyLevels:
-            battleDifficulty = numDifficultyLevels - 1
+        battleDifficulty = int(math.floor(self.toonLevels / 2))
         self.b_setBattleDifficulty(battleDifficulty)
 
     def b_setBattleDifficulty(self, batDiff):
@@ -942,6 +935,7 @@ def skipCEO():
         return "You can't skip this round."
     boss.exitIntroduction()
     boss.b_setState('PrepareBattleThree')
+
 
 @magicWord(category=CATEGORY_ADMINISTRATOR)
 def killCEO():
