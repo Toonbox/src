@@ -14,34 +14,40 @@ MinnieFont = 'phase_3/models/fonts/MinnieFont'
 FancyFont = 'phase_3/models/fonts/Comedy'
 BuildingNametagFont = 'phase_3/models/fonts/MickeyFont'
 BuildingNametagShadow = None
-NametagFonts = ('phase_3/models/fonts/AnimGothic',
- 'phase_3/models/fonts/Aftershock',
- 'phase_3/models/fonts/JiggeryPokery',
- 'phase_3/models/fonts/Ironwork',
- 'phase_3/models/fonts/HastyPudding',
- 'phase_3/models/fonts/Comedy',
- 'phase_3/models/fonts/Humanist',
- 'phase_3/models/fonts/Portago',
- 'phase_3/models/fonts/Musicals',
- 'phase_3/models/fonts/Scurlock',
- 'phase_3/models/fonts/Danger',
- 'phase_3/models/fonts/Alie',
- 'phase_3/models/fonts/OysterBar',
- 'phase_3/models/fonts/RedDogSaloon')
-NametagFontNames = ('Member',
- 'Shivering',
- 'Wonky',
- 'Fancy',
- 'Silly',
- 'Zany',
- 'Practical',
- 'Nautical',
- 'Whimsical',
- 'Spooky',
- 'Action',
- 'Poetic',
- 'Boardwalk',
- 'Western')
+NametagFonts = (
+    'phase_3/models/fonts/ImpressBT.ttf',
+    'phase_3/models/fonts/AnimGothic.bam',
+    'phase_3/models/fonts/Aftershock.bam',
+    'phase_3/models/fonts/JiggeryPokery.bam',
+    'phase_3/models/fonts/Ironwork.bam',
+    'phase_3/models/fonts/HastyPudding.bam',
+    'phase_3/models/fonts/Comedy.bam',
+    'phase_3/models/fonts/Humanist.bam',
+    'phase_3/models/fonts/Portago.bam',
+    'phase_3/models/fonts/Musicals.bam',
+    'phase_3/models/fonts/Scurlock.bam',
+    'phase_3/models/fonts/Danger.bam',
+    'phase_3/models/fonts/Alie.bam',
+    'phase_3/models/fonts/OysterBar.bam',
+    'phase_3/models/fonts/RedDogSaloon.bam'
+)
+NametagFontNames = (
+    'Default',
+    'Plain',
+    'Shivering',
+    'Wonky',
+    'Fancy',
+    'Silly',
+    'Zany',
+    'Practical',
+    'Nautical',
+    'Whimsical',
+    'Spooky',
+    'Action',
+    'Poetic',
+    'Boardwalk',
+    'Western'
+)
 NametagLabel = ' Nametag'
 UnpaidNameTag = 'Basic'
 ScreenshotPath = 'screenshots/'
@@ -132,7 +138,7 @@ TheBrrrgh = ('to', 'in', lTheBrrrgh)
 MinniesMelodyland = ('to', 'in', lMinniesMelodyland)
 DaisyGardens = ('to', 'in', lDaisyGardens)
 OutdoorZone = ('to', 'in', lOutdoorZone)
-FunnyFarm = ('to the', 'in the', 'Funny Farm')
+FunnyFarm = ('to', 'in', 'The Unpainted Playground')
 GoofySpeedway = ('to', 'in', lGoofySpeedway)
 DonaldsDreamland = ('to', 'in', lDonaldsDreamland)
 BossbotHQ = ('to', 'in', 'Bossbot HQ')
@@ -163,7 +169,7 @@ lNext = 'Next'
 lQuit = 'Quit'
 lYes = 'Yes'
 lNo = 'No'
-sleep_auto_reply = '%s is sleeping right now'
+SleepAutoReply = '%s is sleeping right now.'
 lHQOfficerF = 'HQ Officer'
 lHQOfficerM = 'HQ Officer'
 MickeyMouse = 'Mickey Mouse'
@@ -1931,6 +1937,7 @@ AvatarPanelCogLevel = 'Level: %s'
 AvatarPanelCogDetailClose = lClose
 AvatarPanelDetail = 'Toon Details'
 AvatarPanelGroupInvite = 'Invite'
+AvatarPanelGroupMerge = 'Resulting in'
 AvatarPanelGroupRetract = 'Retract Invitation'
 AvatarPanelGroupMember = 'Already In Group'
 AvatarPanelGroupMemberKick = 'Remove'
@@ -4664,7 +4671,6 @@ OptionsPageWhisperEnabledLabel = 'Allowing whispers from anyone.'
 OptionsPageWhisperDisabledLabel = 'Allowing whispers from friends only.'
 OptionsPageSpeedChatStyleLabel = 'SpeedChat Color'
 OptionsPageDisplayWindowed = 'windowed'
-OptionsPageDisplayEmbedded = 'In the browser'
 OptionsPageSelect = 'Select'
 OptionsPageToggleOn = 'Turn On'
 OptionsPageToggleOff = 'Turn Off'
@@ -4679,7 +4685,6 @@ DisplaySettingsApi = 'Graphics API:'
 DisplaySettingsResolution = 'Resolution:'
 DisplaySettingsWindowed = 'In a window'
 DisplaySettingsFullscreen = 'Full screen'
-DisplaySettingsEmbedded = 'In the browser'
 DisplaySettingsApply = 'Apply'
 DisplaySettingsCancel = lCancel
 DisplaySettingsApplyWarning = 'When you press OK, the display settings will change.  If the new configuration does not display properly on your computer, the display will automatically return to its original configuration after %s seconds.'
@@ -5299,8 +5304,8 @@ DivingInstructionsSinglePlayer = 'Treasures will appear at the bottom of the lak
 DivingInstructionsMultiPlayer = 'Treasures will appear at the bottom of the lake.  Use the arrow keys to swim.  Work together to get the treasures up to the boat!'
 DivingGameTreasuresRetrieved = 'Treasures Retrieved'
 TargetGameTitle = 'Toon Slingshot'
-TargetGameInstructionsSinglePlayer = 'Land on targets to score points'
-TargetGameInstructionsMultiPlayer = 'Land on targets to score points'
+TargetGameInstructionsSinglePlayer = 'Use your umbrella to land on the targets. The smaller the target, the more Jellybeans you get!'
+TargetGameInstructionsMultiPlayer = 'Use your umbrella to land on the targets. The smaller the target, the more Jellybeans you get!'
 TargetGameBoard = 'Round %s - Keeping Best Score'
 TargetGameCountdown = 'Forced launch in %s seconds'
 TargetGameCountHelp = 'Pound left and right arrows for power, stop to launch'
@@ -5334,7 +5339,7 @@ PhotoGameTitle = 'Photo Fun'
 PhotoGameFilm = 'FILM'
 PhotoGameScore = 'Team Score: %s\n\nBest Photos: %s\n\nTotal Score: %s'
 CogThiefGameTitle = 'Cog Thief'
-CogThiefGameInstructions = 'Stop these cogs from stealing our gags! Press the Alt or Delete key to throw pies. Be careful- they have a tendancy to explode!'
+CogThiefGameInstructions = 'Stop these Cogs from stealing our Gags! Press the Control key to throw pies. But be careful... they have a tendancy to explode!'
 CogThiefBarrelsSaved = '%(num)d Barrels\nSaved!'
 CogThiefBarrelSaved = '%(num)d Barrel\nSaved!'
 CogThiefNoBarrelsSaved = 'No Barrels\nSaved'
@@ -5349,6 +5354,7 @@ GagShopTooManyProps = 'Sorry, you have too many props'
 GagShopDoneShopping = 'DONE\nSHOPPING'
 GagShopTooManyOfThatGag = 'Sorry, you have enough %s already'
 GagShopInsufficientSkill = 'You do not have enough skill for that yet'
+GagShopNotEnoughJellybeans = 'You do not have enough Jellybeans for that gag'
 GagShopYouPurchased = 'You purchased %s'
 GagShopOutOfJellybeans = 'Sorry, you are all out of Jellybeans!'
 GagShopWaitingOtherPlayers = 'Waiting for other players...'
@@ -5532,37 +5538,43 @@ STOREOWNER_CONFIRM_LOSS = 'Your closet is full.  You will lose the clothes you w
 STOREOWNER_OK = lOK
 STOREOWNER_CANCEL = lCancel
 STOREOWNER_TROPHY = 'Wow! You collected %s of %s fish. That deserves a trophy and a Laff boost!'
-SuitInvasionBegin1 = lToonHQ + ': A Cog Invasion has begun!!!'
+STOREOWNER_BANKING = 'Welcome to The Toontown Bank! How may I help you?'
+SuitInvasionBegin1 = lToonHQ + ': A Cog invasion has begun!!!'
 SuitInvasionBegin2 = lToonHQ + ': %s have taken over Toontown!!!'
-SuitInvasionEnd1 = lToonHQ + ': The %s Invasion has ended!!!'
+SuitInvasionEnd1 = lToonHQ + ': The %s invasion has ended!!!'
 SuitInvasionEnd2 = lToonHQ + ': The Toons have saved the day once again!!!'
-SuitInvasionUpdate1 = lToonHQ + ': The Cog Invasion is now at %s Cogs!!!'
-SuitInvasionUpdate2 = lToonHQ + ': We must defeat those %s!!!'
-SuitInvasionBulletin1 = lToonHQ + ': There is a Cog Invasion in progress!!!'
+SuitInvasionUpdate1 = lToonHQ + ': Keep it up, Toons!!!'
+SuitInvasionUpdate2 = lToonHQ + ': The Cogs appear to be decreasing in numbers!!!'
+SuitInvasionBulletin1 = lToonHQ + ': There is a Cog invasion in progress!!!'
 SuitInvasionBulletin2 = lToonHQ + ': %s have taken over Toontown!!!'
-SkelecogInvasionBegin1 = lToonHQ + ': Hmmm.. We\'re getting a strange reading over here...'
-SkelecogInvasionBegin2 = lToonHQ + ': The Cogs are running out of parts to build new Cogs!'
-SkelecogInvasionBegin3 = lToonHQ + ': Skelecogs have invaded the streets of Toontown!'
-SkelecogInvasionUpdate1 = lToonHQ + ': Keep going Toons!'
-SkelecogInvasionUpdate2 = lToonHQ + ': The Skelecogs appear to be getting weaker!'
-SkelecogInvasionEnd1 = lToonHQ + ': The Toons have saved the day once again!!!'
-SkelecogInvasionEnd2 = lToonHQ + ': The Skelecogs have retreated! Cog Production has slowed back down!'
-V2InvasionBegin1 = lToonHQ + ': Watch out Toons! This reading suggests something bad is about to happen!'
-V2InvasionBegin2 = lToonHQ + ': A huge firmware update has been released to The Cogs!!'
-V2InvasionBegin3 = lToonHQ + ': V2.0 Cogs are invading Toontown!!!'
-V2InvasionEnd1 = lToonHQ + ': The Toons have saved the day once again!!!'
-V2InvasionEnd2 = lToonHQ + ': The V2.0 Cogs have been defeated! Toons of the world, Unite!'
-WaiterInvasionBegin1 = lToonHQ + ': It appears The CEO has Fired all his Waiters!'
-WaiterInvasionBegin2 = lToonHQ + ': The retired Waiters are walking the streets of Toontown!'
-WaiterInvasionEnd1 = lToonHQ + ': The Toons have saved the day once again!!!'
-WaiterInvasionEnd2 = lToonHQ + ': The Waiters have found new Jobs and left the Streets!'
-DepartmentInvasionBegin1 = lToonHQ + ': The %s have taken over Toontown!!!'
-DepartmentInvasionEnd1 = lToonHQ + ': The %s Invasion has ended!!!'
+SkelecogInvasionBegin1 = lToonHQ + ": Hmm... We're getting a strange reading over here..."
+SkelecogInvasionBegin2 = lToonHQ + ': The Cog factories are running out of parts to build new Cogs!'
+SkelecogInvasionBegin3 = lToonHQ + ': Skelecogs have taken over Toontown!!!'
+SkelecogInvasionEnd1 = lToonHQ + ': The Skelecog invasion has ended!!!'
+SkelecogInvasionEnd2 = lToonHQ + ': The Toons have saved the day once again!!!'
+SkelecogInvasionBulletin1 = lToonHQ + ': There is a Cog invasion in progress!!!'
+SkelecogInvasionBulletin2 = lToonHQ + ': The Cog factories are running out of parts to build new Cogs!'
+SkelecogInvasionBulletin3 = lToonHQ + ': Skelecogs have taken over Toontown!!!'
+WaiterInvasionBegin1 = lToonHQ + ': It appears that the C.E.O. has fired all his waiters...'
+WaiterInvasionBegin2 = lToonHQ + ': The unemployed waiters are invading Toontown!!!'
+WaiterInvasionEnd1 = lToonHQ + ': The unemployed waiters have been defeated!!!'
+WaiterInvasionEnd2 = lToonHQ + ': The Toons have saved the day once again!!!'
+WaiterInvasionBulletin1 = lToonHQ + ': There is a Cog invasion in progress!!!'
+WaiterInvasionBulletin2 = lToonHQ + ': The C.E.O. has fired all of his waiters!!!'
+WaiterInvasionBulletin3 = lToonHQ + ": The unemployed waiters are invading Toontown!!!"
+V2InvasionBegin1 = lToonHQ + ": Yikes!!! This isn't good, Toons!"
+V2InvasionBegin2 = lToonHQ + ': A major firmware update has been released to the Cogs!!!'
+V2InvasionBegin3 = lToonHQ + ': Version 2.0 Cogs have taken over Toontown!!!'
+V2InvasionEnd1 = lToonHQ + ': The version 2.0 Cog invasion has ended!!!'
+V2InvasionEnd2 = lToonHQ + ': The Toons have saved the day once again!!!'
+V2InvasionBulletin1 = lToonHQ + ': There is a Cog invasion in progress!!!'
+V2InvasionBulletin2 = lToonHQ + ': A major firmware update has been released to the Cogs!!!'
+V2InvasionBulletin3 = lToonHQ + ': Version 2.0 Cogs have taken over Toontown!!!'
 LeaderboardTitle = 'Toon Platoon'
 QuestScriptTutorialMickey_1 = 'Toontown has a new citizen! Do you have some extra gags?'
 QuestScriptTutorialMickey_2 = 'Sure, %s!'
 QuestScriptTutorialMickey_3 = 'Tutorial Tom will tell you all about the Cogs.\x07Gotta go!'
-QuestScriptTutorialMickey_4 = 'Come here! Use the arrow keys to move.'
+QuestScriptTutorialMickey_4 = "Hello, new citizen! Welcome to Toontown! Come over here so I can tell you what's been going on in town recently. Use the arrow keys to move."
 QuestScriptTutorialMinnie_1 = 'Toontown has a new citizen! Do you have some extra gags?'
 QuestScriptTutorialMinnie_2 = 'Sure, %s!'
 QuestScriptTutorialMinnie_3 = 'Tutorial Tom will tell you all about the Cogs.\x07Gotta go!'
@@ -5738,6 +5750,7 @@ CatalogItemTypeNames = {0: 'INVALID_ITEM',
  18: 'ANIMATED FURNITURE',
  19: AccessoryTypeName}
 HatStylesDescriptions = {'hbb1': 'Green Baseball Cap',
+ 'kmh1': 'Mouskateer',
  'hbb2': 'Blue Baseball Cap',
  'hbb3': 'Orange Baseball Cap',
  'hsf1': 'Beige Safari Hat',
@@ -6795,6 +6808,7 @@ DistributedMailboxWaiting = 'Your mailbox is empty right now, but the package yo
 DistributedMailboxReady = 'Your order has arrived!'
 DistributedMailboxNotOwner = 'Sorry, this is not your mailbox.'
 DistributedPhoneEmpty = "You can use any phone to order special items for you and your house.  New items will become available to order over time.\n\nYou don't have any items available to order right now, but check back later!"
+DistributedPhoneNoHouse = 'You must have a house to use the catalog!'
 Clarabelle = 'Clarabelle'
 MailboxExitButton = 'Close Mailbox'
 MailboxAcceptButton = 'Take this item'
@@ -6990,7 +7004,7 @@ NPCToonNames = {20000: 'Tutorial Tom',
  2106: lHQOfficerF,
  2107: lHQOfficerF,
  2108: 'Canary Coalmine',
- 2109: 'Babbles Blowhard',
+ 2109: 'Sir Babbles A Lot',
  2110: 'Bill Board',
  2111: 'Dancing Diego',
  2112: 'Dr. Tom',
@@ -9416,7 +9430,7 @@ TopToonsMarathonEnd = "The Top Toons New Year's Day Marathon has ended."
 WinterDecorationsStart = "It's Winter Holiday time in Toontown!"
 WinterDecorationsEnd = 'Winter Holiday is over - Happy New Year!'
 WackyWinterDecorationsStart = 'Brrr! Silly Meter goes from silly to chilly!'
-WinterCarolingStart = 'Caroling has come to Toontown. Sing for your Snowman Head - see the Blog for details!'
+WinterCarolingStart = 'Caroling has come to Toontown. Sing for your Snowman Head - see the News Post for details!'
 ExpandedClosetsStart = 'Attention Toons: For a limited time, Members can purchase the new 50 item Closet from the Cattlelog for the low price of 50 Jellybeans!'
 KartingTicketsHolidayStart = 'Get double tickets from Practice races at Goofy Speedway today!'
 IdesOfMarchStart = 'Toons go GREEN!'
@@ -9451,6 +9465,7 @@ BoardingGroupHide = 'Hide'
 BoardingGroupShow = 'Show Boarding Group'
 BoardingPartyInform = 'Create an elevator Boarding Group by clicking on another Toon and Inviting them.\nIn this area Boarding Groups cannot have more than %s Toons.'
 BoardingPartyTitle = 'Boarding Group'
+BoardingPartyTitleMerge = 'Merge Group'
 QuitBoardingPartyLeader = 'Disband'
 QuitBoardingPartyNonLeader = 'Leave'
 QuitBoardingPartyConfirm = 'Are you sure you want to quit this Boarding Group?'
@@ -9475,12 +9490,14 @@ BoardingInviteeInKickOutList = '%s had been removed by your leader. Only the lea
 BoardingInviteePendingIvite = '%s has a pending invite; try again later.'
 BoardingInviteeInElevator = '%s is currently busy; try again later.'
 BoardingInviteGroupFull = 'Your Boarding Group is already full.'
+BoardingGroupsToLarge = '%s is already in a different Boarding Group that is too large to merge.'
 BoardingAlreadyInGroup = 'You cannot accept this invitation because you are part of another Boarding Group.'
 BoardingGroupAlreadyFull = 'You cannot accept this invitation because the group is already full.'
 BoardingKickOutConfirm = 'Are you sure you want to remove %s?'
 BoardingPendingInvite = 'You need to deal with the\n pending invitation first.'
 BoardingCannotLeaveZone = 'You cannot leave this area because you are part of a Boarding Group.'
 BoardingInviteeMessage = '%s would like you to join their Boarding Group.'
+BoardingInviteeMergeMessage = '%s would like you merge with their Boarding Group.'
 BoardingInvitingMessage = 'Inviting %s to your Boarding Group.'
 BoardingInvitationRejected = '%s has rejected to join your Boarding Group.'
 BoardingMessageKickedOut = 'You have been removed from the Boarding Group.'
@@ -9682,7 +9699,7 @@ HolidayNamesInCalendar = {1: ('Summer Fireworks', 'Celebrate Summer with a firew
  54: ('Bean Counter Invasion', 'Stop the Bean Counter Cogs from invading Toontown!'),
  55: ('Double Talker Invasion', 'Stop the Double Talker Cogs from invading Toontown!'),
  56: ('Downsizer Invasion', 'Stop the Downsizer Cogs from invading Toontown!'),
- 57: ('Caroling', 'Sing for your Snowman Head! See the Blog for details!'),
+ 57: ('Caroling', 'Sing for your Snowman Head! See the News Post for details!'),
  59: ("ValenToon's Day", "Celebrate ValenToon's Day from Feb 09 to Feb 16!"),
  72: ('Yes Men Invasion', 'Stop the Yes Men Cogs from invading Toontown!'),
  73: ('Tightwad Invasion', 'Stop the Tightwad Cogs from invading Toontown!'),
@@ -9715,7 +9732,6 @@ HolidayNamesInCalendar = {1: ('Summer Fireworks', 'Celebrate Summer with a firew
  105: ('Toons go GREEN!', 'Toons make a green scene at Green Bean Jeans on Oak Street in Daisy Gardens!')}
 UnknownHoliday = 'Unknown Holiday %d'
 HolidayFormat = '%b %d '
-TimeZone = 'US/Eastern'
 HourFormat = '12'
 CogdoMemoGuiTitle = 'Memos:'
 CogdoMemoNames = 'Barrel-Destruction Memos'
@@ -9792,3 +9808,22 @@ YangAlreadyWhite = "You're already white!"
 YangPickColor = 'Are you sure you want to be a polar bear?'
 YangEnjoy = 'Enjoy! You are now permanently a polar bear.'
 YangGoodbye = 'Okay, then. See you later!'
+
+# Buffs
+
+buffIdStrings = {
+  0: ('Your movement speed will be slightly increased for the next %d %s.',
+      'Reward: Increased movement speed'),
+  1: ('Your gag accuracy will be slight increased for the next %d %s.',
+      'Reward: Increased gag accuracy')
+}
+
+def getBuffString(buffId, buffTime):
+    if buffTime < 60:
+        return buffIdStrings[buffId][0] % (buffTime, 'minutes')
+    else:
+        return buffIdStrings[buffId][0] % (buffTime / 60, 'hours')
+
+
+def getBuffPosterString(buffId):
+    return buffIdStrings[buffId][1]

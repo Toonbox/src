@@ -956,17 +956,13 @@ class NameShop(StateData.StateData):
         self.notify.debug('serverCreateAvatar')
         style = self.toon.getStyle()
         self.newDNA = style.makeNetString()
-        if skipTutorial:
-            self.requestingSkipTutorial = True
-        else:
-            self.requestingSkipTutorial = False
+        self.requestingSkipTutorial = skipTutorial
         if not self.avExists or self.avExists and self.avId == 'deleteMe':
             base.cr.csm.sendCreateAvatar(style, '', self.index)
             self.accept('nameShopCreateAvatarDone', self.handleCreateAvatarResponse)
         else:
             self.checkNameTyped()
         self.notify.debug('Ending Make A Toon: %s' % self.toon.style)
-        base.cr.centralLogger.writeClientEvent('MAT - endingMakeAToon: %s' % self.toon.style)
 
     def handleCreateAvatarResponse(self, avId):
         self.notify.debug('handleCreateAvatarResponse')
@@ -1012,7 +1008,7 @@ class NameShop(StateData.StateData):
 
     def storeSkipTutorialRequest(self):
         if base.forceSkipTutorial:
-            base.cr.skipTutorialRequest = True#self.requestingSkipTutorial
+            base.cr.skipTutorialRequest = True
         else:
             base.cr.skipTutorialRequest = self.requestingSkipTutorial
 

@@ -6,8 +6,8 @@ set /P PPYTHON_PATH=<PPYTHON_PATH
 
 rem Get the user input:
 set /P ttiUsername="Username: "
-set /P TTI_GAMESERVER="Gameserver (DEFAULT: 192.99.200.107): " || ^
-set TTI_GAMESERVER=192.99.200.107
+set /P TTI_GAMESERVER="Gameserver (DEFAULT: 167.114.28.238): " || ^
+set TTI_GAMESERVER=167.114.28.238
 
 rem Export the environment variables:
 set ttiPassword=password
@@ -21,3 +21,4 @@ echo Gameserver: %TTI_GAMESERVER%
 echo ===============================
 
 %PPYTHON_PATH% -m toontown.toonbase.ClientStart
+pause

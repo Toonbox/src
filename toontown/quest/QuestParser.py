@@ -1,26 +1,29 @@
-import sys
-import os
 import copy
-from direct.interval.IntervalGlobal import *
 from direct.directnotify import DirectNotifyGlobal
+from direct.interval.IntervalGlobal import *
 from direct.showbase import AppRunnerGlobal
-from pandac.PandaModules import *
 from direct.showbase import DirectObject
+from direct.showbase import PythonUtil
+import os
+from pandac.PandaModules import *
+import re
+import sys
+import token
+import tokenize
+
 import BlinkingArrows
-from toontown.toon import ToonHeadFrame
-from toontown.char import CharDNA
-from toontown.suit import SuitDNA
-from toontown.char import Char
-from toontown.suit import Suit
-from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownBattleGlobals
 from otp.speedchat import SpeedChatGlobals
 from toontown.ai import DistributedBlackCatMgr
-from direct.showbase import PythonUtil
-from otp.nametag.NametagConstants import *
-import tokenize
-import token
-import re
+from toontown.char import Char
+from toontown.char import CharDNA
+from toontown.chat.ChatGlobals import *
+from toontown.suit import Suit
+from toontown.suit import SuitDNA
+from toontown.toon import ToonHeadFrame
+from toontown.toonbase import TTLocalizer
+from toontown.toonbase import ToontownBattleGlobals
+
+
 notify = DirectNotifyGlobal.directNotify.newCategory('QuestParser')
 lineDict = {}
 globalVarDict = {}
@@ -120,7 +123,7 @@ def parseId(line):
 
 
 def questDefined(scriptId):
-    return lineDict.has_key(scriptId)
+    return scriptId in lineDict
 
 
 class NPCMoviePlayer(DirectObject.DirectObject):
@@ -143,9 +146,9 @@ class NPCMoviePlayer(DirectObject.DirectObject):
         return
 
     def getVar(self, varName):
-        if self.privateVarDict.has_key(varName):
+        if varName in self.privateVarDict:
             return self.privateVarDict[varName]
-        elif globalVarDict.has_key(varName):
+        elif varName in globalVarDict:
             return globalVarDict[varName]
         elif varName.find('tomDialogue') > -1 or varName.find('harryDialogue') > -1:
             notify.warning('%s getting referenced. Tutorial Ack: %d                                  Place: %s' % (varName, base.localAvatar.tutorialAck, base.cr.playGame.hood))
@@ -155,9 +158,9 @@ class NPCMoviePlayer(DirectObject.DirectObject):
         return None
 
     def delVar(self, varName):
-        if self.privateVarDict.has_key(varName):
+        if varName in self.privateVarDict:
             del self.privateVarDict[varName]
-        elif globalVarDict.has_key(varName):
+        elif varName in globalVarDict:
             del globalVarDict[varName]
         else:
             notify.warning('Variable not defined: %s' % varName)
@@ -1004,7 +1007,7 @@ class NPCMoviePlayer(DirectObject.DirectObject):
             def phraseSaid(phraseId):
                 toontastic = 315
                 if phraseId == toontastic:
-                    messenger.send(DistributedBlackCatMgr.DistributedBlackCatMgr.ActivateEvent)
+                    messenger.send('DistributedBlackCatMgr-activate')
 
             def enableBlackCatListen():
                 self.acceptOnce(SpeedChatGlobals.SCStaticTextMsgEvent, phraseSaid)

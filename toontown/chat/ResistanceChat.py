@@ -6,7 +6,7 @@ from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 
 
-if game.process == 'client':
+if process == 'client':
     from toontown.battle import BattleParticles
 
 
@@ -100,7 +100,7 @@ def validateId(textId):
     if textId < 0:
         return 0
     menuIndex, itemIndex = decodeId(textId)
-    if not resistanceDict.has_key(menuIndex):
+    if menuIndex not in resistanceDict:
         return 0
     if itemIndex >= len(resistanceDict[menuIndex]['values']):
         return 0

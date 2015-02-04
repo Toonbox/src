@@ -14,18 +14,19 @@ from toontown.char import Char
 from toontown.suit import SuitDNA
 from toontown.suit import Suit
 from toontown.quest import QuestParser
+from toontown.toon import DistributedNPCSpecialQuestGiver
+from toontown.toonbase import TTLocalizer
+from toontown.chat.ChatGlobals import CFSpeech
+
 
 class DistributedTutorialInterior(DistributedObject.DistributedObject):
-
-    def __init__(self, cr):
-        DistributedObject.DistributedObject.__init__(self, cr)
-
-    def generate(self):
-        DistributedObject.DistributedObject.generate(self)
-
     def announceGenerate(self):
         DistributedObject.DistributedObject.announceGenerate(self)
-        self.setup()
+
+        if not base.cr.doFindAllInstances(DistributedNPCSpecialQuestGiver.DistributedNPCSpecialQuestGiver):
+            self.acceptOnce('doneTutorialSetup', self.setup)
+        else:
+            self.setup()
 
     def disable(self):
         self.interior.removeNode()
@@ -39,10 +40,8 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
         self.suit.delete()
         del self.suit
         self.ignore('enterTutorialInterior')
-        DistributedObject.DistributedObject.disable(self)
 
-    def delete(self):
-        DistributedObject.DistributedObject.delete(self)
+        DistributedObject.DistributedObject.disable(self)
 
     def randomDNAItem(self, category, findFunc):
         codeCount = self.dnaStore.getNumCatalogCodes(category)
@@ -85,7 +84,7 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
         self.interior = loader.loadModel('phase_3.5/models/modules/toon_interior_tutorial')
         self.interior.reparentTo(render)
         dnaStore = DNAStorage()
-        node = loader.loadDNAFile(self.cr.playGame.hood.dnaStore, 'phase_3.5/dna/tutorial_street.dna')
+        node = loader.loadDNAFile(self.cr.playGame.hood.dnaStore, 'phase_3.5/dna/tutorial_street.pdna')
         self.street = render.attachNewNode(node)
         self.street.flattenMedium()
         self.street.setPosHpr(-17, 42, -0.5, 180, 0, 0)
@@ -127,6 +126,8 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
             self.cr.doId2do[self.npcId].reparentTo(npcOrigin)
             self.cr.doId2do[self.npcId].clearMat()
         self.createSuit()
+        base.localAvatar.setPosHpr(-2, 12, 0, -10, 0, 0)
+        self.cr.doId2do[self.npcId].setChatAbsolute(TTLocalizer.QuestScriptTutorialMickey_4, CFSpeech)
         place = base.cr.playGame.getPlace()
         if place and hasattr(place, 'fsm') and place.fsm.getCurrentState().getName():
             self.notify.info('Tutorial movie: Place ready.')
@@ -145,6 +146,8 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
         suitDNA = SuitDNA.SuitDNA()
         suitDNA.newSuit('f')
         self.suit.setDNA(suitDNA)
+        self.suit.nametag.setNametag2d(None)
+        self.suit.nametag.setNametag3d(None)
         self.suit.loop('neutral')
         self.suit.setPosHpr(-20, 8, 0, 0, 0, 0)
         self.suit.reparentTo(self.interior)

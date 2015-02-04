@@ -4,13 +4,17 @@ from otp.ai.MagicWordGlobal import *
 from toontown.hood import ZoneUtil
 from toontown.quest import Quests
 
+
 QuestIdIndex = 0
 QuestFromNpcIdIndex = 1
 QuestToNpcIdIndex = 2
 QuestRewardIdIndex = 3
 QuestProgressIndex = 4
 
+
 class QuestManagerAI:
+    notify = directNotify.newCategory('QuestManagerAI')
+
     def __init__(self, air):
         self.air = air
 
@@ -81,12 +85,13 @@ class QuestManagerAI:
                 # If there is another part to this quest then give them that.
                 if Quests.getNextQuest(questId, npc, av)[0] != Quests.NA:
                     self.nextQuest(av, npc, questId)
+                    if avId in self.air.tutorialManager.avId2fsm:
+                        self.air.tutorialManager.avId2fsm[avId].demand('Tunnel')
                     break
                 else:
                     # The toon has completed this quest. Give them a reward!
                     npc.completeQuest(avId, questId, rewardId)
                     self.completeQuest(av, questId)
-                self.openTutorialDoors(avId, npc)
                 break
         else:
             # They haven't completed any quests so we have to give them choices.
@@ -204,7 +209,10 @@ class QuestManagerAI:
     def giveReward(self, av, questId, rewardId):
         # Give the reward.
         rewardClass = Quests.getReward(rewardId)
-        rewardClass.sendRewardAI(av)
+        if rewardClass is None:
+            self.notify.warning('rewardClass was None for rewardId: %s.' % rewardId)
+        else:
+            rewardClass.sendRewardAI(av)
 
         # Add the rewardId to the avatars rewardHistory.
         rewardTier, rewardHistory = av.getRewardHistory()
@@ -224,17 +232,6 @@ class QuestManagerAI:
                 currentTier += 1
             av.b_setRewardHistory(currentTier, [])
 
-    def openTutorialDoors(self, avId, npc):
-        # Opens the hq-exit doors after talking to HQ-Harry.
-        if isinstance(npc, DistributedNPCSpecialQuestGiverAI):
-            if npc.tutorial and (npc.npcId == 20002):
-                messenger.send('intHqDoor0-{0}'.format(npc.zoneId), [FADoorCodes.WRONG_DOOR_HQ])
-                messenger.send('intHqDoor1-{0}'.format(npc.zoneId), [FADoorCodes.UNLOCKED])
-                streetZone = self.air.tutorialManager.currentAllocatedZones[avId][0]
-                messenger.send('extHqDoor0-{0}'.format(streetZone), [FADoorCodes.GO_TO_PLAYGROUND])
-                messenger.send('extHqDoor1-{0}'.format(streetZone), [FADoorCodes.GO_TO_PLAYGROUND])
-                messenger.send('extShopDoor-{0}'.format(streetZone), [FADoorCodes.GO_TO_PLAYGROUND])
-
     def tutorialQuestChoice(self, avId, npc):
         # Get the avatar.
         av = self.air.doId2do.get(avId)
@@ -247,10 +244,10 @@ class QuestManagerAI:
 
         self.avatarChoseQuest(avId, npc, quest[0], quest[1], 0)
 
-        # If its the tutorial introduction. Open the shop doors.
-        if npc.tutorial:
-            if npc.npcId == 20000:
-                messenger.send('intShopDoor-{0}'.format(npc.zoneId), [FADoorCodes.UNLOCKED])
+        # Are we in the tutorial speaking to Tutorial Tom?
+        if avId in self.air.tutorialManager.avId2fsm:
+            if av.getRewardHistory()[0] == 0:
+                self.air.tutorialManager.avId2fsm[avId].demand('Battle')
 
     def toonRodeTrolleyFirstTime(self, av):
         # Toon played a minigame.
@@ -380,26 +377,46 @@ class QuestManagerAI:
         for i in xrange(0, len(avQuests), 5):
             questDesc = avQuests[i : i + 5]
             questClass = Quests.getQuest(questDesc[QuestIdIndex])
+
+            # Check if the Quest isnt already complete
             if questClass.getCompletionStatus(av, questDesc) == Quests.INCOMPLETE:
-                if isinstance(questClass, Quests.CogQuest):
+
+                # Check if we are dealing with a RecoverItemQuest
+                if isinstance(questClass, Quests.RecoverItemQuest):
+
+                    # Iterate through all the Cogs that were killed in the battle
                     for suit in suitsKilled:
-                        if questClass.doesCogCount(av.doId, suit, taskZoneId, suit['activeToons']):
-                            questDesc[QuestProgressIndex] += 1
-                elif isinstance(questClass, Quests.RecoverItemQuest):
-                    if questClass.getHolder() != Quests.AnyFish:
-                        for suit in suitsKilled:
-                            if questClass.doesCogCount(av.doId, suit, taskZoneId, suit['activeToons']):
-                                baseChance = questClass.getPercentChance()
-                                amountRemaining = questClass.getNumItems() - questDesc[QuestProgressIndex]
-                                chance = Quests.calcRecoverChance(amountRemaining, baseChance)
-                                if chance >= baseChance:
-                                    questDesc[QuestProgressIndex] += 1
-                                    recoveredItems.append(questClass.getItem())
-                                else:
-                                    unrecoveredItems.append(questClass.getItem())
+
+                        # Because the RecoveItemQuest class doesn't have a
+                        # function to see if a Cog counts. We need to manually
+                        # check if the Cog is valid for the Quest
+                        if (questClass.getHolder() == Quests.Any) or \
+                            (questClass.getHolderType() == 'type' and \
+                            questClass.getHolder() == suit['type']) or \
+                            (questClass.getHolderType() == 'track' and \
+                            questClass.getHolder() == suit['track']) or \
+                            (questClass.getHolderType() == 'level' and \
+                            questClass.getHolder() <= suit['level']):
+
+                            # It looks like the Cog was valid. Lets see if they
+                            # found what they were looking for.
+                            baseChance = questClass.getPercentChance()
+                            amountRemaining = questClass.getNumItems() - questDesc[QuestProgressIndex]
+                            chance = Quests.calcRecoverChance(amountRemaining, baseChance)
+
+                            # They found it! Give them their reward!
+                            if chance >= baseChance:
+                                questDesc[QuestProgressIndex] += 1
+                                recoveredItems.append(questClass.getItem())
+
+                            # Better luck next time :(
+                            else:
+                                unrecoveredItems.append(questClass.getItem())
+
             questList.append(questDesc)
 
         av.b_setQuests(questList)
+
         return (recoveredItems, unrecoveredItems)
 
     def toonKilledBuilding(self, av, type, difficulty, floors, zoneId, activeToons):
@@ -459,18 +476,46 @@ class QuestManagerAI:
         pass
 
     def toonKilledCogs(self, av, suitsKilled, zoneId, activeToonList):
-        pass
+        # Get the avatar's current quests.
+        avQuests = av.getQuests()
+        questList = []
+
+        # Make a list of the activeToonDoIds
+        activeToonDoIds = [toon.doId for toon in activeToonList if not None]
+
+        # Iterate through the avatar's current quests.
+        for i in xrange(0, len(avQuests), 5):
+            questDesc = avQuests[i : i + 5]
+            questClass = Quests.getQuest(questDesc[QuestIdIndex])
+
+            # Check if they are doing a cog quest
+            if isinstance(questClass, Quests.CogQuest):
+
+                # Check if the cog counts...
+                for suit in suitsKilled:
+                    if questClass.doesCogCount(av.doId, suit, zoneId, activeToonDoIds):
+
+                        # Looks like the cog counts!
+                        if questClass.getCompletionStatus(av, questDesc) != Quests.COMPLETE:
+                            questDesc[QuestProgressIndex] += 1
+
+            # Add the quest to the questList
+            questList.append(questDesc)
+
+        # Update the avatar's quests
+        av.b_setQuests(questList)
+
 
 @magicWord(category=CATEGORY_PROGRAMMER, types=[str, int, int])
 def quests(command, arg0=0, arg1=0):
-    target = spellbook.getTarget()
-    currQuests = target.getQuests()
+    invoker = spellbook.getInvoker()
+    currQuests = invoker.getQuests()
     currentQuestIds = []
 
     for i in xrange(0, len(currQuests), 5):
         currentQuestIds.append(currQuests[i])
 
-    pocketSize = target.getQuestCarryLimit()
+    pocketSize = invoker.getQuestCarryLimit()
     carrying = len(currQuests) / 5
     canCarry = False
 
@@ -478,10 +523,10 @@ def quests(command, arg0=0, arg1=0):
         canCarry = True
 
     if command == 'clear':
-        target.b_setQuests([])
+        invoker.b_setQuests([])
         return 'Cleared quests'
     elif command == 'clearHistory':
-        target.d_setQuestHistory([])
+        invoker.d_setQuestHistory([])
         return 'Cleared quests history'
     elif command == 'add':
         if arg0:
@@ -497,12 +542,12 @@ def quests(command, arg0=0, arg1=0):
     elif command == 'remove':
         if arg0:
             if arg0 in currentQuestIds:
-                target.removeQuest(arg0)
+                invoker.removeQuest(arg0)
                 return 'Removed QuestID %s'%(arg0)
             elif arg0 < pocketSize and arg0 > 0:
                 if len(currentQuestIds) <= arg0:
                     questIdToRemove = currentQuestIds[arg0 - 1]
-                    target.removeQuest(questIdToRemove)
+                    invoker.removeQuest(questIdToRemove)
                     return 'Removed quest from slot %s'%(arg0)
                 else:
                     return 'Invalid quest slot'
@@ -522,7 +567,7 @@ def quests(command, arg0=0, arg1=0):
             return 'CurrentQuests: %s'%(currentQuestIds)
     elif command == 'bagSize':
         if arg0 > 0 and arg0 < 5:
-            target.b_setQuestCarryLimit(arg0)
+            invoker.b_setQuestCarryLimit(arg0)
             return 'Set carry limit to %s'%(arg0)
         else:
             return 'Argument 0 must be between 1 and 4.'
@@ -540,7 +585,7 @@ def quests(command, arg0=0, arg1=0):
 
                     questList.append(questDesc)
 
-                target.b_setQuests(questList)
+                invoker.b_setQuests(questList)
                 return 'Set quest slot %s progress to %s'%(arg0, arg1)
             elif arg0 in Quests.QuestDict.keys():
                 if arg0 in currentQuestIds:
@@ -554,7 +599,7 @@ def quests(command, arg0=0, arg1=0):
 
                         questList.append(questDesc)
 
-                    target.b_setQuests(questList)
+                    invoker.b_setQuests(questList)
                     return 'Set QuestID %s progress to %s'%(arg0, arg1)
                 else:
                     return 'Cannot progress QuestID: %s.'%(arg0)
@@ -564,7 +609,7 @@ def quests(command, arg0=0, arg1=0):
             return 'progress needs 2 arguments.'
     elif command == 'tier':
         if arg0:
-            target.b_setRewardHistory(arg0, target.getRewardHistory()[1])
+            invoker.b_setRewardHistory(arg0, invoker.getRewardHistory()[1])
             return 'Set tier to %s'%(arg0)
         else:
             return 'tier needs 1 argument.'

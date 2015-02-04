@@ -710,7 +710,7 @@ class DistributedBuilding(DistributedObject.DistributedObject):
     def plantVictorsOutsideBldg(self):
         retVal = 0
         for victor in self.victorList:
-            if victor != 0 and self.cr.doId2do.has_key(victor):
+            if victor != 0 and victor in self.cr.doId2do:
                 toon = self.cr.doId2do[victor]
                 toon.setPosHpr(self.elevatorModel, 0, -10, 0, 0, 0, 0)
                 toon.startSmooth()
@@ -725,7 +725,7 @@ class DistributedBuilding(DistributedObject.DistributedObject):
         delayDeletes = []
         i = 0
         for victor in self.victorList:
-            if victor != 0 and self.cr.doId2do.has_key(victor):
+            if victor != 0 and victor in self.cr.doId2do:
                 toon = self.cr.doId2do[victor]
                 delayDeletes.append(DelayDelete.DelayDelete(toon, 'getVictoryRunTrack'))
                 toon.stopSmooth()
@@ -736,11 +736,11 @@ class DistributedBuilding(DistributedObject.DistributedObject):
 
         openDoors = getOpenInterval(self, self.leftDoor, self.rightDoor, self.openSfx, None)
         toonDoorPosHpr = self.cr.playGame.dnaStore.getDoorPosHprFromBlockNumber(self.block)
-        useFarExitPoints = toonDoorPosHpr.getPos().getZ() > 1.0
+        useFarExitPoints = toonDoorPosHpr.getPos(render).getZ() > 1.0
         runOutAll = Parallel()
         i = 0
         for victor in self.victorList:
-            if victor != 0 and self.cr.doId2do.has_key(victor):
+            if victor != 0 and victor in self.cr.doId2do:
                 toon = self.cr.doId2do[victor]
                 p0 = Point3(0, 0, 0)
                 p1 = Point3(ElevatorPoints[i][0], ElevatorPoints[i][1] - 5.0, ElevatorPoints[i][2])

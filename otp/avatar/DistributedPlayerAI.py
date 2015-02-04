@@ -1,14 +1,17 @@
 from direct.showbase import GarbageReport
+from direct.distributed.PyDatagram import PyDatagram
+from direct.distributed.MsgTypes import CLIENTAGENT_EJECT
+
 from otp.ai.AIBaseGlobal import *
 from otp.ai.MagicWordGlobal import *
 from otp.avatar import DistributedAvatarAI
 from otp.avatar import PlayerBase
+from otp.distributed import OtpDoGlobals
 from otp.distributed.ClsendTracker import ClsendTracker
-from otp.otpbase import OTPGlobals
+from otp.otpbase import OTPLocalizer
 
 
 class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.PlayerBase, ClsendTracker):
-
     def __init__(self, air):
         DistributedAvatarAI.DistributedAvatarAI.__init__(self, air)
         PlayerBase.PlayerBase.__init__(self)
@@ -147,31 +150,54 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
 
         self.friendsList.append((friendId, friendCode))
 
+
 @magicWord(category=CATEGORY_SYSTEM_ADMINISTRATOR, types=[str])
 def system(message):
     """
-    broadcast a <message> to the game server.
+    Broadcast a <message> to the game server.
     """
-    target = spellbook.getTarget()
-    channel = simbase.air.ourChannel
-    system = simbase.air.dclassesByName['SystemServicesManagerAI']
-    name = target.getName()
     message = 'ADMIN: ' + message
-    dg = system.aiFormatUpdate(
-        'systemMessage', 4821, 4821, 1000000, [message, channel])
+    dclass = simbase.air.dclassesByName['ClientServicesManager']
+    dg = dclass.aiFormatUpdate('systemMessage',
+                               OtpDoGlobals.OTP_DO_ID_CLIENT_SERVICES_MANAGER,
+                               10, 1000000, [message])
     simbase.air.send(dg)
 
-@magicWord(category=CATEGORY_SYSTEM_ADMINISTRATOR)
-def maintenance():
+@magicWord(category=CATEGORY_SYSTEM_ADMINISTRATOR, types=[int])
+def maintenance(minutes):
     """
-    initiate the maintenance message sequence.
+    Initiate the maintenance message sequence. It will last for the specified
+    amount of <minutes>.
     """
-    channel = simbase.air.ourChannel
-    system = simbase.air.dclassesByName['SystemServicesManagerAI']
-    message = 'ADMIN: Attention all Toons! Toontown Infinite will be going down for maintenance. Hang tight!'
-    dg = system.aiFormatUpdate(
-        'systemMessage', 4821, 4821, 1000000, [message, channel])
-    simbase.air.send(dg)
+    def disconnect(task):
+        dg = PyDatagram()
+        dg.addServerHeader(10, simbase.air.ourChannel, CLIENTAGENT_EJECT)
+        dg.addUint16(154)
+        dg.addString('Toontown Infinite is now closed for maintenance.')
+        simbase.air.send(dg)
+        return Task.done
+
+    def countdown(minutes):
+        if minutes > 0:
+            system(OTPLocalizer.CRMaintenanceCountdownMessage % minutes)
+        else:
+            system(OTPLocalizer.CRMaintenanceMessage)
+            taskMgr.doMethodLater(10, disconnect, 'maintenance-disconnection')
+        if minutes <= 5:
+            next = 60
+            minutes -= 1
+        elif minutes % 5:
+            next = 60 * (minutes%5)
+            minutes -= minutes % 5
+        else:
+            next = 300
+            minutes -= 5
+        if minutes >= 0:
+            taskMgr.doMethodLater(next, countdown, 'maintenance-task',
+                                  extraArgs=[minutes])
+
+
+    countdown(minutes)
 
 @magicWord(category=CATEGORY_ADMINISTRATOR, types=[str, str, int])
 def accessLevel(accessLevel, storage='PERSISTENT', showGM=1):
@@ -219,7 +245,7 @@ def accessLevel(accessLevel, storage='PERSISTENT', showGM=1):
     if not accessLevel < invoker.getAdminAccess():
         return "The target's access level must be lower than yours!"
     if target.getAdminAccess() == accessLevel:
-        return "{0}'s access level is already {1}!".format(target.getName(), accessLevel)
+        return "%s's access level is already %d!" % (target.getName(), accessLevel)
     target.b_setAdminAccess(accessLevel)
     if showGM:
         target.b_setGM(accessLevel)
@@ -231,8 +257,8 @@ def accessLevel(accessLevel, storage='PERSISTENT', showGM=1):
             target.air.dclassesByName['AccountAI'],
             {'ADMIN_ACCESS': accessLevel})
     if not temporary:
-        target.d_setSystemMessage(0, '{0} set your access level to {1}!'.format(invoker.getName(), accessLevel))
-        return "{0}'s access level has been set to {1}.".format(target.getName(), accessLevel)
+        target.d_setSystemMessage(0, '%s set your access level to %d!' % (invoker.getName(), accessLevel))
+        return "%s's access level has been set to %d." % (target.getName(), accessLevel)
     else:
-        target.d_setSystemMessage(0, '{0} set your access level to {1} temporarily!'.format(invoker.getName(), accessLevel))
-        return "{0}'s access level has been set to {1} temporarily.".format(target.getName(), accessLevel)
+        target.d_setSystemMessage(0, '%s set your access level to %d temporarily!' % (invoker.getName(), accessLevel))
+        return "%s's access level has been set to %d temporarily." % (target.getName(), accessLevel)

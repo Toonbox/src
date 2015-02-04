@@ -21,6 +21,7 @@ from direct.gui import DirectLabel
 from otp.distributed.TelemetryLimiter import RotationLimitToH, TLGatherAllAvs
 from toontown.quest import Quests
 from toontown.battle import BattleParticles
+from toontown.dna.DNAParser import DNABulkLoader
 
 class Playground(Place.Place):
     notify = DirectNotifyGlobal.directNotify.newCategory('Playground')
@@ -258,7 +259,7 @@ class Playground(Place.Place):
             self.loader.hood.startSky()
             lightsOn = LerpColorScaleInterval(base.cr.playGame.hood.loader.geom, 0.1, Vec4(1, 1, 1, 1))
             lightsOn.start()
-        NametagGlobals.setMasterArrowsOn(1)
+        NametagGlobals.setWant2dNametags(True)
         self.zoneId = requestStatus['zoneId']
         self.tunnelOriginList = base.cr.hoodMgr.addLinkTunnelHooks(self, self.loader.nodeList, self.zoneId)
         how = requestStatus['how']
@@ -282,7 +283,7 @@ class Playground(Place.Place):
                 light.reparentTo(hidden)
 
         newsManager = base.cr.newsManager
-        NametagGlobals.setMasterArrowsOn(0)
+        NametagGlobals.setWant2dNametags(False)
         for i in self.loader.nodeList:
             self.loader.exitAnimatedProps(i)
 
@@ -645,7 +646,8 @@ class Playground(Place.Place):
         Place.Place.exitTeleportOut(self)
 
     def createPlayground(self, dnaFile):
-        loader.loadDNAFile(self.loader.dnaStore, self.safeZoneStorageDNAFile)
+        dnaBulk = DNABulkLoader(self.loader.dnaStore, (self.safeZoneStorageDNAFile,))
+        dnaBulk.loadDNAFiles()
         node = loader.loadDNAFile(self.loader.dnaStore, dnaFile)
         if node.getNumParents() == 1:
             self.geom = NodePath(node.getParent(0))

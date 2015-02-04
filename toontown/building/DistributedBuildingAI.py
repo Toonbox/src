@@ -92,6 +92,7 @@ class DistributedBuildingAI(DistributedObjectAI.DistributedObjectAI):
         self.requestDelete()
 
     def delete(self):
+        self.cleanup()
         taskMgr.remove(self.taskName('suitbldg-time-out'))
         taskMgr.remove(self.taskName(str(self.block) + '_becomingToon-timer'))
         taskMgr.remove(self.taskName(str(self.block) + '_becomingSuit-timer'))
@@ -260,7 +261,7 @@ class DistributedBuildingAI(DistributedObjectAI.DistributedObjectAI):
         pass
 
     def getToon(self, toonId):
-        if self.air.doId2do.has_key(toonId):
+        if toonId in self.air.doId2do:
             return self.air.doId2do[toonId]
         else:
             self.notify.warning('getToon() - toon: %d not in repository!' % toonId)
@@ -363,7 +364,6 @@ class DistributedBuildingAI(DistributedObjectAI.DistributedObjectAI):
     def becomingToonTask(self, task):
         self.fsm.request('toon')
         self.suitPlannerExt.buildingMgr.save()
-        self.trophyMgr.save()
         return Task.done
 
     def enterToon(self):

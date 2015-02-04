@@ -56,6 +56,9 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
         taskMgr.remove(self.uniqueName('exit_door_closing-timer'))
         taskMgr.remove(self.uniqueName('exit_door_opening-timer'))
         self.ignoreAll()
+        del self.block
+        del self.swing
+        del self.doorType
         del self.fsm
         del self.exitDoorFSM
         del self.otherDoor
@@ -119,7 +122,7 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
                 [self.otherDoor.getZoneId(), self.otherDoor.getDoId()])
 
     def enqueueAvatarIdEnter(self, avatarID):
-        if not self.avatarsWhoAreEntering.has_key(avatarID):
+        if avatarID not in self.avatarsWhoAreEntering:
             self.avatarsWhoAreEntering[avatarID] = 1
             self.sendUpdate('avatarEnter', [avatarID])
         self.openDoor(self.fsm)

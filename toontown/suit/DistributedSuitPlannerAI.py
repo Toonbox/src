@@ -1,12 +1,12 @@
+from direct.directnotify.DirectNotifyGlobal import *
+from direct.distributed import DistributedObjectAI
+from direct.task import Task
 import random
 
 import DistributedSuitAI
 import SuitDNA
 import SuitPlannerBase
 import SuitTimings
-from direct.directnotify.DirectNotifyGlobal import *
-from direct.distributed import DistributedObjectAI
-from direct.task import Task
 from otp.ai.AIBaseGlobal import *
 from toontown.battle import BattleManagerAI
 from toontown.battle import SuitBattleGlobals
@@ -14,6 +14,7 @@ from toontown.building import HQBuildingAI
 from toontown.building import SuitBuildingGlobals
 from toontown.dna.DNAParser import DNASuitPoint
 from toontown.hood import ZoneUtil
+from toontown.suit.SuitInvasionGlobals import IFSkelecog, IFWaiter, IFV2
 from toontown.suit.SuitLegList import *
 from toontown.toon import NPCToons
 from toontown.toonbase import ToontownBattleGlobals
@@ -84,7 +85,7 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
             self.notify.debug('Creating a building manager AI in zone' + str(self.zoneId))
         self.buildingMgr = self.air.buildingManagers.get(self.zoneId)
         if self.buildingMgr:
-            (blocks, hqBlocks, gagshopBlocks, petshopBlocks, kartshopBlocks, animBldgBlocks) = self.buildingMgr.getDNABlockLists()
+            (blocks, hqBlocks, gagshopBlocks, petshopBlocks, kartshopBlocks, bankBlocks, libraryBlocks, animBldgBlocks) = self.buildingMgr.getDNABlockLists()
             for currBlock in blocks:
                 bldg = self.buildingMgr.getBuilding(currBlock)
                 bldg.setSuitPlannerExt(self)
@@ -118,6 +119,7 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
     def delete(self):
         self.cleanup()
         DistributedObjectAI.DistributedObjectAI.delete(self)
+        SuitPlannerBase.SuitPlannerBase.delete(self)
 
     def initBuildingsAndPoints(self):
         if not self.buildingMgr:
@@ -251,7 +253,7 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
         while startPoint == None and len(blockNumbers) > 0:
             bn = random.choice(blockNumbers)
             blockNumbers.remove(bn)
-            if self.buildingSideDoors.has_key(bn):
+            if bn in self.buildingSideDoors:
                 for doorPoint in self.buildingSideDoors[bn]:
                     points = self.dnaStore.getAdjacentPoints(doorPoint)
                     i = points.getNumPoints() - 1
@@ -293,14 +295,24 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
                     buildingHeight = self.pendingBuildingHeights[0]
                     del self.pendingBuildingHeights[0]
                     self.pendingBuildingHeights.append(buildingHeight)
-        if suitName == None:
-            (suitName, suitTrack, skelecog, revives, waiter) = self.air.suitInvasionManager.getInvadingCog()
-            if suitName == None:
+        if suitName is None:
+            suitDeptIndex, suitTypeIndex, flags = self.air.suitInvasionManager.getInvadingCog()
+            if flags & IFSkelecog:
+                skelecog = 1
+            if flags & IFWaiter:
+                waiter = True
+            if flags & IFV2:
+                revives = 1
+            if suitDeptIndex is not None:
+                suitTrack = SuitDNA.suitDepts[suitDeptIndex]
+            if suitTypeIndex is not None:
+                suitName = self.air.suitInvasionManager.getSuitName()
+            else:
                 suitName = self.defaultSuitName
-        if suitType == None and suitName != None:
+        if (suitType is None) and (suitName is not None):
             suitType = SuitDNA.getSuitType(suitName)
             suitTrack = SuitDNA.getSuitDept(suitName)
-        if suitLevel == None and buildingHeight != None:
+        if (suitLevel is None) and (buildingHeight is not None):
             suitLevel = self.chooseSuitLevel(self.SuitHoodInfo[self.hoodInfoIdx][self.SUIT_HOOD_INFO_LVL], buildingHeight)
         (suitLevel, suitType, suitTrack) = self.pickLevelTypeAndTrack(suitLevel, suitType, suitTrack)
         newSuit.setupSuitDNA(suitLevel, suitType, suitTrack)

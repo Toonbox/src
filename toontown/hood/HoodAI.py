@@ -1,6 +1,6 @@
 from direct.directnotify.DirectNotifyGlobal import *
 from toontown.building import DistributedBuildingMgrAI
-from toontown.dna.DNAParser import DNAStorage, DNAGroup, DNAVisGroup, DNAData
+from toontown.dna.DNAParser import DNAStorage, DNAGroup, DNAVisGroup
 from toontown.fishing.DistributedFishingPondAI import DistributedFishingPondAI
 from toontown.hood import ZoneUtil
 from toontown.safezone import TreasureGlobals
@@ -48,7 +48,7 @@ class HoodAI:
             lookupTable = TTLocalizer.GlobalStreetNames
         name = lookupTable.get(zoneId, '')
         if isStreet:
-            return '{0}, {1}'.format(self.getLocationName(self.zoneId), name[2])
+            return '%s, %s' % (self.getLocationName(self.zoneId), name[2])
         return name[2]
 
     def startup(self):
@@ -121,7 +121,7 @@ class HoodAI:
         for zoneId in self.getZoneTable():
             dnaData = self.air.dnaDataMap.get(zoneId, None)
             zoneId = ZoneUtil.getTrueZoneId(zoneId, self.zoneId)
-            if isinstance(dnaData, DNAData):
+            if dnaData.getName() == 'root':
                 area = ZoneUtil.getCanonicalZoneId(zoneId)
                 (foundFishingPonds, foundFishingPondGroups) = self.findFishingPonds(dnaData, zoneId, area)
                 self.fishingPonds.extend(foundFishingPonds)
@@ -150,7 +150,7 @@ class HoodAI:
         for zoneId in self.getZoneTable():
             dnaData = self.air.dnaDataMap.get(zoneId, None)
             zoneId = ZoneUtil.getTrueZoneId(zoneId, self.zoneId)
-            if isinstance(dnaData, DNAData):
+            if dnaData.getName() == 'root':
                 foundPartyGates = self.findPartyGates(dnaData, zoneId)
                 self.partyGates.extend(foundPartyGates)
 

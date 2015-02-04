@@ -44,12 +44,11 @@ dclass Account {
   uint32 ACCOUNT_AV_SET[] required db;
   uint32 ESTATE_ID db;
   AvatarPendingDel ACCOUNT_AV_SET_DEL[] db;
-  string PLAYED_MINUTES db;
-  string PLAYED_MINUTES_PERIOD db;
   string CREATED db;
   string LAST_LOGIN db;
   string ACCOUNT_ID db;
   uint16 ACCESS_LEVEL db;
+  uint32 MONEY db;
 };
 
 struct BarrierData {
@@ -253,7 +252,7 @@ dclass DistributedPlayer : DistributedAvatar {
   WishNameState(string = "OPEN") db ram;
   setPreviousAccess(uint8 = 0) required db airecv;
   setAccess(uint8 = 2) broadcast ownrecv required ram airecv;
-  setAdminAccess(uint16 = 0) ownrecv required airecv;
+  setAdminAccess(uint16 = 0) broadcast ownrecv required airecv;
   setAsGM(bool = 0) required ram broadcast ownrecv airecv;
 };
 

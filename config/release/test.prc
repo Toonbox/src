@@ -1,33 +1,29 @@
-# Distribution token...
+# Distribution:
 distribution test
 
-# Models/textures...
-model-path resources
-
-# Server...
+# Server:
 server-version SERVER_VERSION
-server-force-ssl #f
+client-agents 8
+shard-low-pop 100
+shard-mid-pop 150
 
-# Core features...
-want-housing #f
+# Core features:
+want-housing #t
 want-pets #f
-want-karts #t
 want-parties #f
 want-cogdominiums #f
 want-achievements #f
+boarding-group-merges #t
 
-# Districts...
-show-population #f
-shard-low-pop 250
-shard-mid-pop 500
-
-# Sellbot boss...
+# Sellbot boss:
 disable-sos-card 91917
 disable-sos-card 91918
 
-# Picnic table board games...
-want-game-tables #f
+# Optional:
+want-chestnut-park-construction #t
 
-# Temporary...
-force-skip-tutorial #t
+# Temporary:
 want-phone-quest #f
+
+# Staff events:
+cfo-staff-event #t

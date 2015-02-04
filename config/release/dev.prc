@@ -1,37 +1,42 @@
-# Distribution token...
+# Distribution:
 distribution dev
 
-# Models/textures...
+# Art assets:
 model-path ../resources
 
-# Server...
+# Server:
 server-version infinite-dev
-server-force-ssl #f
+min-access-level 600
+accountdb-type developer
+shard-low-pop 50
+shard-mid-pop 100
 
-# DClass files (in reverse order)...
+# RPC:
+want-rpc-server #f
+rpc-server-endpoint http://localhost:8080/
+
+# DClass files (in reverse order):
 dc-file astron/dclass/toon.dc
 dc-file astron/dclass/otp.dc
 
-# Database...
-accountdb-type developer
-account-server-min-access-level 600
-
-# Core features...
+# Core features:
 want-pets #f
 want-parties #f
 want-cogdominiums #f
 want-achievements #f
+
+# Chat:
 want-whitelist #f
 
-# Districts...
-shard-low-pop 50
-shard-mid-pop 100
+# Cashbot boss:
+want-resistance-toonup #t
+want-resistance-restock #t
+want-resistance-dance #t
 
-# Picnic table board games...
-want-find-four #f
-
-# Optional...
+# Optional:
 want-yin-yang #t
 
-# Developer options...
+# Developer options:
+show-population #t
+force-skip-tutorial #t
 want-instant-parties #t

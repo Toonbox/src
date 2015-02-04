@@ -19,7 +19,7 @@ from toontown.toon.Toon import teleportDebug
 from toontown.estate import HouseGlobals
 from toontown.toonbase import TTLocalizer
 from direct.interval.IntervalGlobal import *
-from otp.nametag import NametagGlobals
+from toontown.nametag import NametagGlobals
 
 visualizeZones = base.config.GetBool('visualize-zones', 0)
 
@@ -112,7 +112,7 @@ class Street(BattlePlace.BattlePlace):
         base.localAvatar.setGeom(self.loader.geom)
         base.localAvatar.setOnLevelGround(1)
         self._telemLimiter = TLGatherAllAvs('Street', RotationLimitToH)
-        NametagGlobals.setMasterArrowsOn(arrowsOn)
+        NametagGlobals.setWant2dNametags(arrowsOn)
         self.zone = ZoneUtil.getBranchZone(requestStatus['zoneId'])
 
         def __lightDecorationOn__():
@@ -157,7 +157,7 @@ class Street(BattlePlace.BattlePlace):
                 light.reparentTo(hidden)
 
         newsManager = base.cr.newsManager
-        NametagGlobals.setMasterArrowsOn(0)
+        NametagGlobals.setWant2dNametags(False)
         self.loader.hood.stopSky()
         self.loader.music.stop()
         base.localAvatar.setGeom(render)
@@ -184,12 +184,15 @@ class Street(BattlePlace.BattlePlace):
         bldg = base.cr.doId2do.get(bldgDoId)
         if bldg:
             if bldg.elevatorNodePath is not None:
-                self._enterElevatorGotElevator()
-                return Task.done
+                if self._enterElevatorGotElevator():
+                    return Task.done
         return Task.cont
 
     def _enterElevatorGotElevator(self):
+        if not messenger.whoAccepts('insideVictorElevator'):
+            return False
         messenger.send('insideVictorElevator')
+        return True
 
     def exitElevatorIn(self):
         taskMgr.remove(self._eiwbTask)
@@ -244,7 +247,7 @@ class Street(BattlePlace.BattlePlace):
         hoodId = requestStatus['hoodId']
         zoneId = requestStatus['zoneId']
         if avId != -1:
-            if not base.cr.doId2do.has_key(avId):
+            if avId not in base.cr.doId2do:
                 teleportDebug(requestStatus, "couldn't find friend %s" % avId)
                 handle = base.cr.identifyFriend(avId)
                 requestStatus = {'how': 'teleportIn',
@@ -265,7 +268,7 @@ class Street(BattlePlace.BattlePlace):
         return
 
     def enterTeleportOut(self, requestStatus):
-        if requestStatus.has_key('battle'):
+        if 'battle' in requestStatus:
             self.__teleportOutDone(requestStatus)
         else:
             BattlePlace.BattlePlace.enterTeleportOut(self, requestStatus, self.__teleportOutDone)

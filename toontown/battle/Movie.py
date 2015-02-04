@@ -1,4 +1,7 @@
 import copy
+from direct.directnotify import DirectNotifyGlobal
+from direct.interval.IntervalGlobal import *
+from direct.showbase import DirectObject
 import random
 
 from BattleBase import *
@@ -21,10 +24,7 @@ import MovieUtil
 import PlayByPlayText
 import RewardPanel
 from SuitBattleGlobals import *
-from direct.directnotify import DirectNotifyGlobal
-from direct.interval.IntervalGlobal import *
-from direct.showbase import DirectObject
-from otp.nametag.NametagConstants import *
+from toontown.chat.ChatGlobals import *
 from toontown.distributed import DelayDelete
 from toontown.toon import NPCToons
 from toontown.toon import Toon
@@ -32,6 +32,7 @@ from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ToontownBattleGlobals import *
 from toontown.toontowngui import TTDialog
+from toontown.nametag import NametagGlobals
 
 
 camPos = Point3(14, 0, 10)
@@ -358,6 +359,8 @@ class Movie(DirectObject.DirectObject):
         dna.newToonFromProperties(*dnaList)
         self.tutorialTom.setDNA(dna)
         self.tutorialTom.setName(TTLocalizer.NPCToonNames[20000])
+        self.tutorialTom.setPickable(0)
+        self.tutorialTom.setPlayerType(NametagGlobals.CCNonPlayer)
         self.tutorialTom.uniqueName = uniqueName
         if base.config.GetString('language', 'english') == 'japanese':
             self.tomDialogue03 = base.loadSfx('phase_3.5/audio/dial/CC_tom_movie_tutorial_reward01.ogg')
@@ -764,7 +767,7 @@ class Movie(DirectObject.DirectObject):
                             adict['target'] = sdict
                 adict['hpbonus'] = ta[TOON_HPBONUS_COL]
                 adict['sidestep'] = ta[TOON_ACCBONUS_COL]
-                if adict.has_key('npcId'):
+                if 'npcId' in adict:
                     adict['sidestep'] = 0
                 adict['battle'] = self.battle
                 adict['playByPlayText'] = self.playByPlayText
@@ -789,7 +792,7 @@ class Movie(DirectObject.DirectObject):
         setCapture = 0
         tp = []
         for ta in self.toonAttackDicts:
-            if ta['track'] == track or track == NPCSOS and ta.has_key('special'):
+            if ta['track'] == track or track == NPCSOS and 'sepcial' in ta:
                 tp.append(ta)
                 if track == SQUIRT:
                     setCapture = 1
@@ -797,11 +800,11 @@ class Movie(DirectObject.DirectObject):
         if track == TRAP:
             sortedTraps = []
             for attack in tp:
-                if not attack.has_key('npcId'):
+                if 'npcId' not in attack:
                     sortedTraps.append(attack)
 
             for attack in tp:
-                if attack.has_key('npcId'):
+                if 'npcId' in attack:
                     sortedTraps.append(attack)
 
             tp = sortedTraps

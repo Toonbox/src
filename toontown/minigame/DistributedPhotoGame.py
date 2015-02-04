@@ -19,7 +19,7 @@ from toontown.golf import BuildGeometry
 from toontown.toon import Toon
 from toontown.toon import ToonDNA
 from toontown.dna.DNAParser import *
-from otp.nametag import NametagGroup
+from toontown.nametag import NametagGlobals
 from direct.interval.IntervalGlobal import *
 import random
 from direct.showbase import PythonUtil
@@ -122,9 +122,9 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
         self.storageDNAFile = self.data['DNA_TRIO'][1]
         self.dnaFile = self.data['DNA_TRIO'][2]
         self.dnaStore = DNAStorage()
-        loader.loadDNAFile(self.dnaStore, 'phase_4/dna/storage.dna')
-        loader.loadDNAFile(self.dnaStore, self.storageDNAFile)
-        loader.loadDNAFile(self.dnaStore, self.safeZoneStorageDNAFile)
+        files = ('phase_4/dna/storage.pdna', self.storageDNAFile, self.safeZoneStorageDNAFile)
+        dnaBulk = DNABulkLoader(self.dnaStore, files)
+        dnaBulk.loadDNAFiles()
         node = loader.loadDNAFile(self.dnaStore, self.dnaFile)
         self.scene = hidden.attachNewNode(node)
         self.construct()
@@ -436,7 +436,7 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
                 newEntry = (entry.getFromNode(), object)
                 distance = Vec3(entry.getSurfacePoint(self.tripod)).lengthSquared()
                 name = entry.getFromNode().getName()
-                if not distDict.has_key(name):
+                if not name in distDict:
                     distDict[name] = distance
                     hitDict[name] = (entry.getFromNode(), object, marker)
                 elif distance < distDict[name]:
@@ -464,7 +464,7 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
             else:
                 quality = 1
                 onCenter = 1
-            if not centerDict.has_key(superParent):
+            if superParent not in centerDict:
                 centerDict[superParent] = (onCenter,
                  overB,
                  overT,
@@ -742,7 +742,7 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
             subject.setName(namegen.randomNameMoreinfo(boy=boy, girl=girl)[-1])
             self.nameCounter += 1
             subject.setPickable(0)
-            subject.setPlayerType(NametagGroup.CCSpeedChat)
+            subject.setPlayerType(NametagGlobals.CCSpeedChat)
             dna = ToonDNA.ToonDNA()
             dna.newToonRandom(seed, gender, 1)
             subject.setDNAString(dna.makeNetString())

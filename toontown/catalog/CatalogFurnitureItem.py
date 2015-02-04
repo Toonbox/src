@@ -3,6 +3,7 @@ import CatalogItem
 import random
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
+
 FTModelName = 0
 FTColor = 1
 FTColorOptions = 2
@@ -18,6 +19,7 @@ FLIsTable = 32
 FLPhone = 64
 FLBillboard = 128
 FLTrunk = 256
+
 furnitureColors = [(0.792,
   0.353,
   0.29,
@@ -89,7 +91,7 @@ ClosetToClothes = {500: 10,
  518: 50}
 ClothesToCloset = {}
 for closetId, maxClothes in ClosetToClothes.items():
-    if not ClothesToCloset.has_key(maxClothes):
+    if maxClothes not in ClothesToCloset:
         ClothesToCloset[maxClothes] = (closetId,)
     else:
         ClothesToCloset[maxClothes] += (closetId,)
@@ -932,8 +934,6 @@ class CatalogFurnitureItem(CatalogAtticItem.CatalogAtticItem):
             return TTLocalizer.FurnitureYourOldBank
         elif self.getFlags() & FLTrunk:
             return TTLocalizer.FurnitureYourOldTrunk
-        else:
-            return None
         return None
 
     def notOfferedTo(self, avatar):
@@ -1034,9 +1034,6 @@ class CatalogFurnitureItem(CatalogAtticItem.CatalogAtticItem):
                 avatar.b_setMaxBankMoney(self.getMaxBankMoney())
         return retcode
 
-    def getDeliveryTime(self):
-        return 24 * 60
-
     def getPicture(self, avatar):
         model = self.loadModel()
         spin = 1
@@ -1107,7 +1104,10 @@ class CatalogFurnitureItem(CatalogAtticItem.CatalogAtticItem):
         dg.addInt16(self.furnitureType)
         if FurnitureTypes[self.furnitureType][FTColorOptions]:
             if store & CatalogItem.Customization:
-                dg.addUint8(self.colorOption)
+                if self.colorOption == None:
+                    dg.addUint8(0)
+                else:
+                    dg.addUint8(self.colorOption)
 
     def getAcceptItemErrorText(self, retcode):
         if retcode == ToontownGlobals.P_AlreadyOwnBiggerCloset:

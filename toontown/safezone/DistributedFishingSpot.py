@@ -33,6 +33,9 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
     angleMax = 30.0
 
     def __init__(self, cr):
+        if hasattr(self, 'fishInit'):
+            return
+        self.fishInit = 1
         DistributedObject.DistributedObject.__init__(self, cr)
         self.lastAvId = 0
         self.lastFrame = 0
@@ -115,6 +118,9 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
         return
 
     def delete(self):
+        if hasattr(self, 'fishDeleted'):
+            return
+        self.fishDeleted = 1
         del self.pond
         del self.fsm
         if self.nodePath:
@@ -237,7 +243,7 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
         else:
             self.collSphere.setTangible(1)
             if self.avId == base.localAvatar.doId:
-                base.setCellsAvailable(base.bottomCells, 0)
+                base.setCellsActive(base.bottomCells, 0)
                 self.localToonFishing = 1
                 if base.wantBingo:
                     self.pond.setLocalToonSpot(self)
@@ -254,8 +260,8 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
             self.__hideCastGui()
             if base.wantBingo:
                 self.pond.setLocalToonSpot()
-            base.setCellsAvailable([base.bottomCells[1], base.bottomCells[2]], 1)
-            base.setCellsAvailable(base.rightCells, 1)
+            base.setCellsActive([base.bottomCells[1], base.bottomCells[2]], 1)
+            base.setCellsActive(base.rightCells, 1)
             place = base.cr.playGame.getPlace()
             if place:
                 place.setState('walk')
@@ -659,7 +665,7 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
             jar = self.castGui.find('**/jar')
             self.castGui.find('**/display_jar').reparentTo(jar)
             self.jar.reparentTo(jar)
-            base.setCellsAvailable(base.rightCells, 0)
+            base.setCellsActive(base.rightCells, 0)
             bucket.setScale(0.9)
             bucket.setX(-1.9)
             bucket.setZ(-.11)
@@ -974,6 +980,7 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
     def enterReward(self, code, itemDesc1, itemDesc2, itemDesc3):
         self.__placeAvatar()
         self.bob.reparentTo(self.angleNP)
+        self.waterLevel = FishingTargetGlobals.getWaterLevel(self.area)
         self.bob.setZ(self.waterLevel)
         self.__showLineReeling()
         self.castTrack.pause()

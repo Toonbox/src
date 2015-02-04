@@ -1,36 +1,39 @@
-from otp.avatar import Avatar
-from otp.avatar.Avatar import teleportNotify
-import ToonDNA
-from direct.task.Task import Task
-from toontown.suit import SuitDNA
 from direct.actor import Actor
-from ToonHead import *
-from pandac.PandaModules import *
-from direct.interval.IntervalGlobal import *
 from direct.directnotify import DirectNotifyGlobal
-from toontown.toonbase import ToontownGlobals
-from otp.otpbase import OTPLocalizer
-from toontown.toonbase import TTLocalizer
-import random
-from toontown.effects import Wake
-import TTEmote
-from otp.avatar import Emote
-import Motion
-from toontown.hood import ZoneUtil
-from toontown.battle import SuitBattleGlobals
-from otp.otpbase import OTPGlobals
-from toontown.effects import DustCloud
+from direct.interval.IntervalGlobal import *
 from direct.showbase.PythonUtil import Functor
-from toontown.distributed import DelayDelete
-from otp.nametag.NametagConstants import *
-import AccessoryGlobals
+from direct.task.Task import Task
+from pandac.PandaModules import *
+import random
 import types
+
+import AccessoryGlobals
+import Motion
+import TTEmote
+import ToonDNA
+from ToonHead import *
+from otp.avatar import Avatar
+from otp.avatar import Emote
+from otp.avatar.Avatar import teleportNotify
+from otp.otpbase import OTPGlobals
+from otp.otpbase import OTPLocalizer
+from toontown.battle import SuitBattleGlobals
+from toontown.chat.ChatGlobals import *
+from toontown.distributed import DelayDelete
+from toontown.effects import DustCloud
+from toontown.effects import Wake
+from toontown.hood import ZoneUtil
+from toontown.nametag.NametagGlobals import *
+from toontown.suit import SuitDNA
+from toontown.toonbase import TTLocalizer
+from toontown.toonbase import ToontownGlobals
+
 
 def teleportDebug(requestStatus, msg, onlyIfToAv = True):
     if teleportNotify.getDebug():
         teleport = 'teleport'
-        if requestStatus.has_key('how') and requestStatus['how'][:len(teleport)] == teleport:
-            if not onlyIfToAv or requestStatus.has_key('avId') and requestStatus['avId'] > 0:
+        if 'how' in requestStatus and requestStatus['how'][:len(teleport)] == teleport:
+            if not onlyIfToAv or 'avId' in requestStatus and requestStatus['avId'] > 0:
                 teleportNotify.debug(msg)
 
 
@@ -121,7 +124,8 @@ Phase4AnimList = (('sit', 'sit'),
  ('scientistJealous', 'scientistJealous'),
  ('scientistEmcee', 'scientistEmcee'),
  ('scientistWork', 'scientistWork'),
- ('scientistGame', 'scientistGame'))
+ ('scientistGame', 'scientistGame'),
+ ('taunt', 'taunt'))
 Phase5AnimList = (('water-gun', 'water-gun'),
  ('hold-bottle', 'hold-bottle'),
  ('firehose', 'firehose'),
@@ -172,117 +176,69 @@ TorsoDict = {
     'sd': '/models/char/tt_a_chr_dgs_skirt_torso_',
     'md': '/models/char/tt_a_chr_dgm_skirt_torso_',
     'ld': '/models/char/tt_a_chr_dgl_skirt_torso_'}
-#list of models for suits to preload.
-suitList = ['phase_3.5/models/char/suitA-mod',
-            'phase_3.5/models/char/suitB-mod',
-            'phase_3.5/models/char/suitC-mod',
-            'phase_4/models/char/suitA-heads',
-            'phase_4/models/char/suitB-heads',
-            'phase_3.5/models/char/suitC-heads',
-            'phase_4/models/char/suitA-head-textures',
-            'phase_4/models/char/suitB-head-textures',
-            'phase_3.5/models/char/suitC-head-textures',
-            'phase_4/models/char/suitA-walk',
-            'phase_4/models/char/suitB-walk',
-            'phase_3.5/models/char/suitC-walk']
 
 def loadModels():
     global Preloaded
     if not Preloaded:
         print 'Preloading avatars...'
-        def loadTex(path):
-            tex = loader.loadTexture(path)
-            tex.setMinfilter(Texture.FTLinearMipmapLinear)
-            tex.setMagfilter(Texture.FTLinear)
-            Preloaded[path] = tex
-
-        for shirt in ToonDNA.Shirts:
-            loadTex(shirt)
-
-        for sleeve in ToonDNA.Sleeves:
-            loadTex(sleeve)
-
-        for short in ToonDNA.BoyShorts:
-            loadTex(short)
-
-        for bottom in ToonDNA.GirlBottoms:
-            loadTex(bottom[0])
 
         for key in LegDict.keys():
             fileRoot = LegDict[key]
+
             Preloaded[fileRoot+'-1000'] = loader.loadModel('phase_3' + fileRoot + '1000')
             Preloaded[fileRoot+'-500'] = loader.loadModel('phase_3' + fileRoot + '500')
             Preloaded[fileRoot+'-250'] = loader.loadModel('phase_3' + fileRoot + '250')
 
         for key in TorsoDict.keys():
             fileRoot = TorsoDict[key]
+
             Preloaded[fileRoot+'-1000'] = loader.loadModel('phase_3' + fileRoot + '1000')
+
             if len(key) > 1:
                 Preloaded[fileRoot+'-500'] = loader.loadModel('phase_3' + fileRoot + '500')
                 Preloaded[fileRoot+'-250'] = loader.loadModel('phase_3' + fileRoot + '250')
 
-        for key in HeadDict.keys():
-            fileRoot = HeadDict[key]
-            Preloaded[fileRoot+'-1000'] = loader.loadModel('phase_3' + fileRoot + '1000')
-            Preloaded[fileRoot+'-500'] = loader.loadModel('phase_3' + fileRoot + '500')
-            Preloaded[fileRoot+'-250'] = loader.loadModel('phase_3' + fileRoot + '250')
-
-
 def loadBasicAnims():
     loadPhaseAnims()
-
 
 def unloadBasicAnims():
     loadPhaseAnims(0)
 
-
 def loadTutorialBattleAnims():
     loadPhaseAnims('phase_3.5')
-
 
 def unloadTutorialBattleAnims():
     loadPhaseAnims('phase_3.5', 0)
 
-
 def loadMinigameAnims():
     loadPhaseAnims('phase_4')
-
 
 def unloadMinigameAnims():
     loadPhaseAnims('phase_4', 0)
 
-
 def loadBattleAnims():
     loadPhaseAnims('phase_5')
-
 
 def unloadBattleAnims():
     loadPhaseAnims('phase_5', 0)
 
-
 def loadSellbotHQAnims():
     loadPhaseAnims('phase_9')
-
 
 def unloadSellbotHQAnims():
     loadPhaseAnims('phase_9', 0)
 
-
 def loadCashbotHQAnims():
     loadPhaseAnims('phase_10')
-
 
 def unloadCashbotHQAnims():
     loadPhaseAnims('phase_10', 0)
 
-
 def loadBossbotHQAnims():
     loadPhaseAnims('phase_12')
 
-
 def unloadBossbotHQAnims():
     loadPhaseAnims('phase_12', 0)
-
 
 def loadPhaseAnims(phaseStr = 'phase_3', loadFlag = 1):
     if phaseStr == 'phase_3':
@@ -309,7 +265,7 @@ def loadPhaseAnims(phaseStr = 'phase_3', loadFlag = 1):
         for anim in animList:
             if loadFlag:
                 pass
-            elif LegsAnimDict[key].has_key(anim[0]):
+            elif anim[0] in LegsAnimDict[key]:
                 if base.localAvatar.style.legs == key:
                     base.localAvatar.unloadAnims([anim[0]], 'legs', None)
 
@@ -317,7 +273,7 @@ def loadPhaseAnims(phaseStr = 'phase_3', loadFlag = 1):
         for anim in animList:
             if loadFlag:
                 pass
-            elif TorsoAnimDict[key].has_key(anim[0]):
+            elif anim[0] in TorsoAnimDict[key]:
                 if base.localAvatar.style.torso == key:
                     base.localAvatar.unloadAnims([anim[0]], 'torso', None)
 
@@ -326,12 +282,9 @@ def loadPhaseAnims(phaseStr = 'phase_3', loadFlag = 1):
             for anim in animList:
                 if loadFlag:
                     pass
-                elif HeadAnimDict[key].has_key(anim[0]):
+                elif anim[0] in HeadAnimDict[key]:
                     if base.localAvatar.style.head == key:
                         base.localAvatar.unloadAnims([anim[0]], 'head', None)
-
-    return
-
 
 def compileGlobalAnimList():
     phaseList = [Phase3AnimList,
@@ -372,7 +325,6 @@ def compileGlobalAnimList():
                 for anim in animList:
                     file = phaseStr + HeadDict[key] + anim[1]
                     HeadAnimDict[key][anim[0]] = file
-
 
 def loadDialog():
     loadPath = 'phase_3.5/audio/dial/'
@@ -422,7 +374,6 @@ def loadDialog():
     for file in pigDialogueFiles:
         PigDialogueArray.append(base.loadSfx(loadPath + file + '.ogg'))
 
-
 def unloadDialog():
     global CatDialogueArray
     global PigDialogueArray
@@ -442,7 +393,6 @@ def unloadDialog():
     MonkeyDialogueArray = []
     BearDialogueArray = []
     PigDialogueArray = []
-
 
 class Toon(Avatar.Avatar, ToonHead):
     notify = DirectNotifyGlobal.directNotify.newCategory('Toon')
@@ -660,12 +610,12 @@ class Toon(Avatar.Avatar, ToonHead):
 
     def setLODs(self):
         self.setLODNode()
-        levelOneIn = base.config.GetInt('lod1-in', 500)
+        levelOneIn = base.config.GetInt('lod1-in', 20)
         levelOneOut = base.config.GetInt('lod1-out', 0)
-        levelTwoIn = base.config.GetInt('lod2-in', 700)
-        levelTwoOut = base.config.GetInt('lod2-out', 500)
-        levelThreeIn = base.config.GetInt('lod3-in', 1000)
-        levelThreeOut = base.config.GetInt('lod3-out', 700)
+        levelTwoIn = base.config.GetInt('lod2-in', 80)
+        levelTwoOut = base.config.GetInt('lod2-out', 20)
+        levelThreeIn = base.config.GetInt('lod3-in', 280)
+        levelThreeOut = base.config.GetInt('lod3-out', 80)
         self.addLOD(1000, levelOneIn, levelOneOut)
         self.addLOD(500, levelTwoIn, levelTwoOut)
         self.addLOD(250, levelThreeIn, levelThreeOut)
@@ -783,9 +733,9 @@ class Toon(Avatar.Avatar, ToonHead):
         filePrefix = LegDict.get(legStyle)
         if filePrefix is None:
             self.notify.error('unknown leg style: %s' % legStyle)
-        self.loadModel((Preloaded[filePrefix+'-1000']), 'legs', '1000', True)
-        self.loadModel((Preloaded[filePrefix+'-500']), 'legs', '500', True)
-        self.loadModel((Preloaded[filePrefix+'-250']), 'legs', '250', True)
+        self.loadModel(Preloaded[filePrefix+'-1000'], 'legs', '1000', True)
+        self.loadModel(Preloaded[filePrefix+'-500'], 'legs', '500', True)
+        self.loadModel(Preloaded[filePrefix+'-250'], 'legs', '250', True)
         if not copy:
             self.showPart('legs', '1000')
             self.showPart('legs', '500')
@@ -822,13 +772,13 @@ class Toon(Avatar.Avatar, ToonHead):
         filePrefix = TorsoDict.get(torsoStyle)
         if filePrefix is None:
             self.notify.error('unknown torso style: %s' % torsoStyle)
-        self.loadModel((Preloaded[filePrefix+'-1000']), 'torso', '1000', copy)
+        self.loadModel(Preloaded[filePrefix+'-1000'], 'torso', '1000', True)
         if len(torsoStyle) == 1:
-            self.loadModel((Preloaded[filePrefix+'-1000']), 'torso', '500', copy)
-            self.loadModel((Preloaded[filePrefix+'-1000']), 'torso', '250', copy)
+            self.loadModel(Preloaded[filePrefix+'-1000'], 'torso', '500', True)
+            self.loadModel(Preloaded[filePrefix+'-1000'], 'torso', '250', True)
         else:
-            self.loadModel((Preloaded[filePrefix+'-500']), 'torso', '500', copy)
-            self.loadModel((Preloaded[filePrefix+'-250']), 'torso', '250', copy)
+            self.loadModel(Preloaded[filePrefix+'-500'], 'torso', '500', True)
+            self.loadModel(Preloaded[filePrefix+'-250'], 'torso', '250', True)
         if not copy:
             self.showPart('torso', '1000')
             self.showPart('torso', '500')
@@ -1655,12 +1605,15 @@ class Toon(Avatar.Avatar, ToonHead):
         Emote.globalEmote.releaseAll(self, 'exitSwim')
 
     def startBobSwimTask(self):
-        swimBob = getattr(self, 'swimBob', None)
-        if swimBob:
-            swimBob.finish()
-        self.getGeomNode().setZ(4.0)
+        if getattr(self, 'swimBob', None):
+            self.swimBob.finish()
+            self.swimBob = None
         self.nametag3d.setZ(5.0)
-        self.swimBob = Sequence(self.getGeomNode().posInterval(1, (0, -3, 3), blendType='easeInOut'), self.getGeomNode().posInterval(1, (0, -3, 4), blendType='easeInOut'))
+        geomNode = self.getGeomNode()
+        geomNode.setZ(4.0)
+        self.swimBob = Sequence(
+            geomNode.posInterval(1, Point3(0, -3, 3), startPos=Point3(0, -3, 4), blendType='easeInOut'),
+            geomNode.posInterval(1, Point3(0, -3, 4), startPos=Point3(0, -3, 3), blendType='easeInOut'))
         self.swimBob.loop()
 
     def stopBobSwimTask(self):
@@ -2040,9 +1993,9 @@ class Toon(Avatar.Avatar, ToonHead):
         self.openEyes()
         self.startBlink()
         if config.GetBool('stuck-sleep-fix', 1):
-            doClear = SLEEP_STRING in (self.nametag.getChat(), self.nametag.getStompText())
+            doClear = SLEEP_STRING in (self.nametag.getChatText(), self.nametag.getStompChatText())
         else:
-            doClear = self.nametag.getChat() == SLEEP_STRING
+            doClear = self.nametag.getChatText() == SLEEP_STRING
         if doClear:
             self.clearChat()
         self.lerpLookAt(Point3(0, 1, 0), time=0.25)
@@ -2662,10 +2615,8 @@ class Toon(Avatar.Avatar, ToonHead):
         elif effect == ToontownGlobals.CEVirtual:
             return self.__doVirtual()
         elif effect == ToontownGlobals.CEGhost:
-            #We recieved CEGhost, set alpha to 0.2 (kinda invisible)
-            alpha = 0
-
-            if localAvatar.adminAccess < self.getAdminAccess():
+            alpha = 0.25
+            if base.localAvatar.getAdminAccess() < self.adminAccess:
                 alpha = 0
             return Sequence(self.__doToonGhostColorScale(VBase4(1, 1, 1, alpha), lerpTime, keepDefault=1), Func(self.nametag3d.hide))
         return Sequence()
@@ -2785,10 +2736,10 @@ class Toon(Avatar.Avatar, ToonHead):
                 name = self.getName()
             suitDept = SuitDNA.suitDepts.index(SuitDNA.getSuitDept(suitType))
             suitName = SuitBattleGlobals.SuitAttributes[suitType]['name']
-            self.nametag.setDisplayName(TTLocalizer.SuitBaseNameWithLevel % {'name': name,
+            self.nametag.setText(TTLocalizer.SuitBaseNameWithLevel % {'name': name,
              'dept': suitName,
              'level': self.cogLevels[suitDept] + 1})
-            self.nametag.setNameWordwrap(9.0)
+            self.nametag.setWordWrap(9.0)
 
     def takeOffSuit(self):
         if not self.isDisguised:
@@ -2811,7 +2762,7 @@ class Toon(Avatar.Avatar, ToonHead):
         Emote.globalEmote.releaseAll(self)
         self.isDisguised = 0
         self.setFont(ToontownGlobals.getToonFont())
-        self.nametag.setNameWordwrap(-1)
+        self.nametag.setWordWrap(None)
         if hasattr(base, 'idTags') and base.idTags:
             name = self.getAvIdName()
         else:

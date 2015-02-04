@@ -843,21 +843,18 @@ NoItems = 0
 NewItems = 1
 OldItems = 2
 SuitInvasionBegin = 0
-SuitInvasionUpdate = 1
-SuitInvasionEnd = 2
+SuitInvasionEnd = 1
+SuitInvasionUpdate = 2
 SuitInvasionBulletin = 3
 SkelecogInvasionBegin = 4
-SkelecogInvasionUpdate = 5
-SkelecogInvasionEnd = 6
+SkelecogInvasionEnd = 5
+SkelecogInvasionBulletin = 6
 WaiterInvasionBegin = 7
-WaiterInvasionUpdate = 8
-WaiterInvasionEnd = 9
+WaiterInvasionEnd = 8
+WaiterInvasionBulletin = 9
 V2InvasionBegin = 10
-V2InvasionUpdate = 11
-V2InvasionEnd = 12
-DepartmentInvasionBegin = 13
-DepartmentInvasionUpdate = 14
-DepartmentInvasionEnd = 15
+V2InvasionEnd = 11
+V2InvasionBulletin = 12
 NO_HOLIDAY = 0
 JULY4_FIREWORKS = 1
 NEWYEARS_FIREWORKS = 2
@@ -1622,7 +1619,7 @@ AnimPropTypes = Enum(('Unknown',
  'Trashcan'), start=-1)
 EmblemTypes = Enum(('Silver', 'Gold'))
 NumEmblemTypes = 2
-DefaultMaxBankMoney = 12000
+MaxBankMoney = 50000
 DefaultBankItemId = 1350
 ToonAnimStates = set(['off',
  'neutral',
@@ -1677,3 +1674,11 @@ AV_TOUCH_CHECK_DIST_Z = 5.0
 AV_TOUCH_CHECK_TIMELIMIT_CL = 0.002
 AV_TOUCH_COUNT_LIMIT = 5
 AV_TOUCH_COUNT_TIME = 300
+
+# Buffs...
+
+BMovementSpeed = 0
+BMovementSpeedMultiplier = 1.3
+
+BGagAccuracy = 1
+BGagAccuracyMultiplier = 1.3

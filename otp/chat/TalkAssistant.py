@@ -1,24 +1,25 @@
-import string
-import sys
-from direct.showbase import DirectObject
-from otp.otpbase import OTPLocalizer
 from direct.directnotify import DirectNotifyGlobal
-from otp.otpbase import OTPGlobals
-from otp.speedchat import SCDecoders
+from direct.showbase import DirectObject
 from pandac.PandaModules import *
-from otp.chat.TalkMessage import TalkMessage
-from otp.chat.TalkHandle import TalkHandle
+import sys
 import time
-from otp.chat.TalkGlobals import *
+
 from otp.chat.ChatGlobals import *
-from otp.nametag.NametagConstants import CFSpeech, CFTimeout, CFThought
+from otp.chat.TalkGlobals import *
+from otp.chat.TalkHandle import TalkHandle
+from otp.chat.TalkMessage import TalkMessage
+from otp.otpbase import OTPGlobals
+from otp.otpbase import OTPLocalizer
+from otp.speedchat import SCDecoders
+from toontown.chat.ChatGlobals import *
 from toontown.chat.TTWhiteList import TTWhiteList
+
+
 ThoughtPrefix = '.'
 
+
 class TalkAssistant(DirectObject.DirectObject):
-    ExecNamespace = None
     notify = DirectNotifyGlobal.directNotify.newCategory('TalkAssistant')
-    execChat = base.config.GetBool('exec-chat', 0)
 
     def __init__(self):
         self.logWhispers = 1
@@ -200,12 +201,6 @@ class TalkAssistant(DirectObject.DirectObject):
         newText = ' '.join(newwords)
         return newText
 
-    def executeSlashCommand(self, text):
-        pass
-
-    def executeGMCommand(self, text):
-        pass
-
     def isThought(self, message):
         if not message:
             return 0
@@ -244,37 +239,6 @@ class TalkAssistant(DirectObject.DirectObject):
              message.getSenderAvatarName(),
              message.getSenderAccountName(),
              message.getBody())
-
-    def importExecNamespace(self):
-        pass
-
-    def execMessage(self, message):
-        print 'execMessage %s' % message
-        if not TalkAssistant.ExecNamespace:
-            TalkAssistant.ExecNamespace = {}
-            exec 'from pandac.PandaModules import *' in globals(), self.ExecNamespace
-            self.importExecNamespace()
-        try:
-            return str(eval(message, globals(), TalkAssistant.ExecNamespace))
-        except SyntaxError:
-            try:
-                exec message in globals(), TalkAssistant.ExecNamespace
-                return 'ok'
-            except:
-                exception = sys.exc_info()[0]
-                extraInfo = sys.exc_info()[1]
-                if extraInfo:
-                    return str(extraInfo)
-                else:
-                    return str(exception)
-
-        except:
-            exception = sys.exc_info()[0]
-            extraInfo = sys.exc_info()[1]
-            if extraInfo:
-                return str(extraInfo)
-            else:
-                return str(exception)
 
     def checkOpenTypedChat(self):
         if base.localAvatar.commonChatFlags & OTPGlobals.CommonChat:
@@ -381,11 +345,6 @@ class TalkAssistant(DirectObject.DirectObject):
 
     def receiveWhisperTalk(self, avatarId, avatarName, accountId, accountName, toId, toName, message, scrubbed = 0):
         error = None
-        print 'receiveWhisperTalk %s %s %s %s %s' % (avatarId,
-         avatarName,
-         accountId,
-         accountName,
-         message)
         if not avatarName and avatarId:
             avatarName = self.findAvatarName(avatarId)
         if not accountName and accountId:
@@ -632,7 +591,6 @@ class TalkAssistant(DirectObject.DirectObject):
         return error
 
     def sendWhisperTalk(self, message, receiverAvId):
-
         modifications = []
         words = message.split(' ')
         offset = 0

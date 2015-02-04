@@ -76,7 +76,7 @@ def invertTable(table):
     index = {}
     for key in table.keys():
         value = table[key]
-        if not index.has_key(value):
+        if value not in index:
             index[value] = key
 
     return index
@@ -391,7 +391,7 @@ class DistributedTravelGame(DistributedMinigame):
 
     def onstage(self):
         self.notify.debug('onstage')
-        NametagGlobals.setOnscreenChatForced(1)
+        NametagGlobals.setForceOnscreenChat(True)
         DistributedMinigame.onstage(self)
         self.gameBoard.reparentTo(render)
         self.sky.reparentTo(render)
@@ -413,7 +413,7 @@ class DistributedTravelGame(DistributedMinigame):
 
     def offstage(self):
         self.notify.debug('offstage')
-        NametagGlobals.setOnscreenChatForced(0)
+        NametagGlobals.setForceOnscreenChat(False)
         base.setBackgroundColor(ToontownGlobals.DefaultBackgroundColor)
         self.introMovie.finish()
         self.gameBoard.hide()
@@ -470,7 +470,7 @@ class DistributedTravelGame(DistributedMinigame):
 
     def enterInputChoice(self):
         self.notify.debug('enterInputChoice')
-        NametagGlobals.setOnscreenChatForced(1)
+        NametagGlobals.setForceOnscreenChat(True)
         self.timer = ToontownTimer.ToontownTimer()
         self.timer.hide()
         if self.timerStartTime != None:
@@ -482,7 +482,7 @@ class DistributedTravelGame(DistributedMinigame):
         return
 
     def exitInputChoice(self):
-        NametagGlobals.setOnscreenChatForced(0)
+        NametagGlobals.setForceOnscreenChat(False)
         if self.timer != None:
             self.timer.destroy()
             self.timer = None
@@ -724,7 +724,7 @@ class DistributedTravelGame(DistributedMinigame):
         for index in xrange(len(self.avIdList)):
             avId = self.avIdList[index]
             self.startingVotes[avId] = startingVotesArray[index]
-            if not self.currentVotes.has_key(avId):
+            if avId not in self.currentVotes:
                 self.currentVotes[avId] = startingVotesArray[index]
 
         self.notify.debug('starting votes = %s' % self.startingVotes)
@@ -776,7 +776,7 @@ class DistributedTravelGame(DistributedMinigame):
         retval = 0
         if hasattr(self, 'scrollList'):
             selectedIndex = self.scrollList.getSelectedIndex()
-            if self.indexToVotes.has_key(selectedIndex):
+            if selectedIndex in self.indexToVotes:
                 retval = self.indexToVotes[selectedIndex]
         return retval
 
@@ -821,7 +821,7 @@ class DistributedTravelGame(DistributedMinigame):
         if not self.hasLocalToon:
             return
         self.notify.debug('setAvatarChose: avatar: ' + str(avId) + ' choose a number')
-    
+
     def setAvatarVotes(self, avId, votes):
         if not self.hasLocalToon:
             return

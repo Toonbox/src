@@ -1,22 +1,25 @@
-import random
-import math
-from pandac.PandaModules import Point3
 from direct.directnotify import DirectNotifyGlobal
+from direct.distributed.ClockDelta import globalClockDelta
 from direct.fsm import FSM
 from direct.interval.IntervalGlobal import LerpPosInterval
-from toontown.coghq import DistributedFoodBeltAI
+import math
+from pandac.PandaModules import Point3
+import random
+
+from otp.ai.MagicWordGlobal import *
+from toontown.battle import BattleExperienceAI
+from toontown.battle import DistributedBattleDinersAI
+from toontown.battle import DistributedBattleWaitersAI
+from toontown.building import SuitBuildingGlobals
 from toontown.coghq import DistributedBanquetTableAI
+from toontown.coghq import DistributedFoodBeltAI
 from toontown.coghq import DistributedGolfSpotAI
-from toontown.toonbase import ToontownGlobals
-from toontown.toonbase import ToontownBattleGlobals
 from toontown.suit import DistributedBossCogAI
 from toontown.suit import DistributedSuitAI
 from toontown.suit import SuitDNA
-from toontown.building import SuitBuildingGlobals
-from toontown.battle import DistributedBattleWaitersAI
-from toontown.battle import DistributedBattleDinersAI
-from toontown.battle import BattleExperienceAI
-from direct.distributed.ClockDelta import globalClockDelta
+from toontown.toonbase import ToontownBattleGlobals
+from toontown.toonbase import ToontownGlobals
+
 
 class DistributedBossbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedBossbotBossAI')
@@ -464,8 +467,12 @@ class DistributedBossbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         avId = self.air.getAvatarIdFromSender()
         if not self.validate(avId, avId in self.involvedToons, 'hitBoss from unknown avatar'):
             return
-        self.validate(avId, bossDamage <= 3, 'invalid bossDamage %s' % bossDamage)
+        if bossDamage > 3:
+            self.air.writeServerEvent('suspicious', avId, 'Bossbot: Toon sent an attack over 3 damage!')
+            self.air.banManager.ban(avId, 0, 'hacking')
+            return
         if bossDamage < 1:
+            self.air.writeServerEvent('suspicious', avId, 'Bossbot: Toon sent an attack less than 1 damage!')
             return
         currState = self.getCurrentOrNextState()
         if currState != 'BattleFour':
@@ -591,7 +598,6 @@ class DistributedBossbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
                 toon.b_promote(self.deptIndex)
 
     def givePinkSlipReward(self, toon):
-        self.notify.debug('TODO give pink slip to %s' % toon)
         toon.addPinkSlips(self.battleDifficulty + 1)
 
     def getThreat(self, toonId):
@@ -741,31 +747,21 @@ class DistributedBossbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         return returnedToonId
 
     def getToonDifficulty(self):
-        highestCogSuitLevel = 0
-        totalCogSuitLevels = 0.0
-        totalNumToons = 0.0
+        totalCogSuitTier = 0
+        totalToons = 0
+
         for toonId in self.involvedToons:
             toon = simbase.air.doId2do.get(toonId)
             if toon:
-                toonLevel = toon.getNumPromotions(self.dept)
-                totalCogSuitLevels += toonLevel
-                totalNumToons += 1
-                if toon.cogLevels > highestCogSuitLevel:
-                    highestCogSuitLevel = toonLevel
+                totalToons += 1
+                totalCogSuitTier += toon.cogTypes[1]
 
-        if not totalNumToons:
-            totalNumToons = 1.0
-        averageLevel = totalCogSuitLevels / totalNumToons
-        self.notify.debug('toons average level = %f, highest level = %d' % (averageLevel, highestCogSuitLevel))
-        retval = min(averageLevel, self.maxToonLevels)
-        return retval
+        averageTier = math.floor(totalCogSuitTier / totalToons) + 1
+        return int(averageTier)
 
     def calcAndSetBattleDifficulty(self):
         self.toonLevels = self.getToonDifficulty()
-        numDifficultyLevels = len(ToontownGlobals.BossbotBossDifficultySettings)
-        battleDifficulty = int(self.toonLevels / self.maxToonLevels * numDifficultyLevels)
-        if battleDifficulty >= numDifficultyLevels:
-            battleDifficulty = numDifficultyLevels - 1
+        battleDifficulty = int(math.floor(self.toonLevels / 2))
         self.b_setBattleDifficulty(battleDifficulty)
 
     def b_setBattleDifficulty(self, batDiff):
@@ -919,3 +915,41 @@ class DistributedBossbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
     def toggleMove(self):
         self.moveAttackAllowed = not self.moveAttackAllowed
         return self.moveAttackAllowed
+
+
+@magicWord(category=CATEGORY_ADMINISTRATOR)
+def skipCEO():
+    """
+    Skips to the final round of the CEO.
+    """
+    invoker = spellbook.getInvoker()
+    boss = None
+    for do in simbase.air.doId2do.values():
+        if isinstance(do, DistributedBossbotBossAI):
+            if invoker.doId in do.involvedToons:
+                boss = do
+                break
+    if not boss:
+        return "You aren't in a CEO!"
+    if boss.state in ('PrepareBattleThree', 'BattleThree'):
+        return "You can't skip this round."
+    boss.exitIntroduction()
+    boss.b_setState('PrepareBattleThree')
+
+
+@magicWord(category=CATEGORY_ADMINISTRATOR)
+def killCEO():
+    """
+    Kills the CEO.
+    """
+    invoker = spellbook.getInvoker()
+    boss = None
+    for do in simbase.air.doId2do.values():
+        if isinstance(do, DistributedBossbotBossAI):
+            if invoker.doId in do.involvedToons:
+                boss = do
+                break
+    if not boss:
+        return "You aren't in a CEO!"
+    boss.b_setState('Victory')
+    return 'Killed CEO.'

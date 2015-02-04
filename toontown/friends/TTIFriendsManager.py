@@ -3,7 +3,6 @@ from otp.otpbase import OTPLocalizer
 from toontown.hood import ZoneUtil
 
 class TTIFriendsManager(DistributedObjectGlobal):
-
     def d_removeFriend(self, friendId):
         self.sendUpdate('removeFriend', [friendId])
 
@@ -47,21 +46,21 @@ class TTIFriendsManager(DistributedObjectGlobal):
 
     def teleportQuery(self, fromId):
         if not hasattr(base, 'localAvatar'):
-            self.sendUpdate('routeTeleportResponse', [ fromId, 0, 0, 0, 0 ])
+            self.sendUpdate('teleportResponse', [ fromId, 0, 0, 0, 0 ])
             return
         if not hasattr(base.localAvatar, 'getTeleportAvailable') or not hasattr(base.localAvatar, 'ghostMode'):
-            self.sendUpdate('routeTeleportResponse', [ fromId, 0, 0, 0, 0 ])
+            self.sendUpdate('teleportResponse', [ fromId, 0, 0, 0, 0 ])
             return
         if not base.localAvatar.getTeleportAvailable() or base.localAvatar.ghostMode:
             if hasattr(base.cr.identifyFriend(fromId), 'getName'):
-                base.localAvatar.setSystemMessage(0, OTPLocalizer.WhisperFailedVisit % base.cr.identifyFriend(fromId).getName())
-            self.sendUpdate('routeTeleportResponse', [ fromId, 0, 0, 0, 0 ])
+                base.localAvatar.setSystemMessage(fromId, OTPLocalizer.WhisperFailedVisit % base.cr.identifyFriend(fromId).getName())
+            self.sendUpdate('teleportResponse', [ fromId, 0, 0, 0, 0 ])
             return
 
         hoodId = base.cr.playGame.getPlaceId()
         if hasattr(base.cr.identifyFriend(fromId), 'getName'):
-            base.localAvatar.setSystemMessage(0, OTPLocalizer.WhisperComingToVisit % base.cr.identifyFriend(fromId).getName())
-        self.sendUpdate('routeTeleportResponse', [
+            base.localAvatar.setSystemMessage(fromId, OTPLocalizer.WhisperComingToVisit % base.cr.identifyFriend(fromId).getName())
+        self.sendUpdate('teleportResponse', [
             fromId,
             base.localAvatar.getTeleportAvailable(),
             base.localAvatar.defaultShard,
@@ -69,7 +68,12 @@ class TTIFriendsManager(DistributedObjectGlobal):
             base.localAvatar.getZoneId()
         ])
 
-    def teleportResponse(self, fromId, available, shardId, hoodId, zoneId):
+    def d_teleportResponse(self, toId, available, shardId, hoodId, zoneId):
+        self.sendUpdate('teleportResponse', [toId, available, shardId,
+            hoodId, zoneId]
+        )
+
+    def setTeleportResponse(self, fromId, available, shardId, hoodId, zoneId):
         base.localAvatar.teleportResponse(fromId, available, shardId, hoodId, zoneId)
 
     def d_whisperSCTo(self, toId, msgIndex):
@@ -119,3 +123,30 @@ class TTIFriendsManager(DistributedObjectGlobal):
     def submitSecretResponse(self, result, avId):
         messenger.send('submitSecretResponse', [result, avId])
 
+    def d_battleSOS(self, toId):
+        self.sendUpdate('battleSOS', [toId])
+
+    def setBattleSOS(self, fromId):
+        base.localAvatar.battleSOS(fromId)
+
+    def d_teleportGiveup(self, toId):
+        self.sendUpdate('teleportGiveup', [toId])
+
+    def setTeleportGiveup(self, fromId):
+        base.localAvatar.teleportGiveup(fromId)
+
+    def d_whisperSCToontaskTo(self, toId, taskId, toNpcId, toonProgress, msgIndex):
+        self.sendUpdate('whisperSCToontaskTo', [toId, taskId, toNpcId,
+            toonProgress, msgIndex]
+        )
+
+    def setWhisperSCToontaskFrom(self, fromId, taskId, toNpcId, toonProgress, msgIndex):
+        base.localAvatar.setWhisperSCToontaskFrom(fromId, taskId, toNpcId,
+            toonProgress, msgIndex
+        )
+
+    def d_sleepAutoReply(self, toId):
+        self.sendUpdate('sleepAutoReply', [toId])
+
+    def setSleepAutoReply(self, fromId):
+        base.localAvatar.setSleepAutoReply(fromId)

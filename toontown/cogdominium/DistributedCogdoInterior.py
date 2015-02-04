@@ -1,26 +1,30 @@
-import random
-from direct.interval.IntervalGlobal import *
-from direct.distributed.ClockDelta import *
-from toontown.building.ElevatorConstants import *
-from toontown.toon import NPCToons
-from pandac.PandaModules import NodePath
-from toontown.building import ElevatorUtils
-from toontown.toonbase import ToontownGlobals
-from toontown.toonbase import ToontownBattleGlobals
 from direct.directnotify import DirectNotifyGlobal
-from direct.fsm import ClassicFSM, State
 from direct.distributed import DistributedObject
+from direct.distributed.ClockDelta import *
+from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from direct.fsm.StatePush import StateVar, FunctionCall
-from toontown.battle import BattleBase
-from toontown.hood import ZoneUtil
-from toontown.cogdominium.CogdoLayout import CogdoLayout
-from toontown.cogdominium import CogdoGameConsts
-from toontown.cogdominium import CogdoBarrelRoom, CogdoBarrelRoomConsts
-from toontown.distributed import DelayDelete
-from toontown.toonbase import TTLocalizer
-from CogdoExecutiveSuiteMovies import CogdoExecutiveSuiteIntro
+from direct.interval.IntervalGlobal import *
+from pandac.PandaModules import NodePath
+import random
+
 from CogdoElevatorMovie import CogdoElevatorMovie
+from CogdoExecutiveSuiteMovies import CogdoExecutiveSuiteIntro
+from toontown.battle import BattleBase
+from toontown.building import ElevatorUtils
+from toontown.building.ElevatorConstants import *
+from toontown.chat.ChatGlobals import *
+from toontown.cogdominium import CogdoBarrelRoom, CogdoBarrelRoomConsts
+from toontown.cogdominium import CogdoGameConsts
+from toontown.cogdominium.CogdoLayout import CogdoLayout
+from toontown.distributed import DelayDelete
+from toontown.hood import ZoneUtil
+from toontown.toon import NPCToons
+from toontown.toonbase import TTLocalizer
+from toontown.toonbase import ToontownBattleGlobals
+from toontown.toonbase import ToontownGlobals
+
+
 PAINTING_DICT = {'s': 'tt_m_ara_crg_paintingMoverShaker',
  'l': 'tt_m_ara_crg_paintingLegalEagle',
  'm': 'tt_m_ara_crg_paintingMoverShaker',
@@ -255,7 +259,7 @@ class DistributedCogdoInterior(DistributedObject.DistributedObject):
         self.ignore(toon.uniqueName('disable'))
 
     def __finishInterval(self, name):
-        if self.activeIntervals.has_key(name):
+        if name in self.activeIntervals:
             interval = self.activeIntervals[name]
             if interval.isPlaying():
                 interval.finish()
@@ -304,7 +308,7 @@ class DistributedCogdoInterior(DistributedObject.DistributedObject):
         self.toons = []
         for toonId in toonIds:
             if toonId != 0:
-                if self.cr.doId2do.has_key(toonId):
+                if toonId in self.cr.doId2do:
                     toon = self.cr.doId2do[toonId]
                     toon.stopSmooth()
                     self.toons.append(toon)
@@ -322,7 +326,7 @@ class DistributedCogdoInterior(DistributedObject.DistributedObject):
         self.suits = []
         self.joiningReserves = []
         for suitId in suitIds:
-            if self.cr.doId2do.has_key(suitId):
+            if suitId in self.cr.doId2do:
                 suit = self.cr.doId2do[suitId]
                 self.suits.append(suit)
                 suit.fsm.request('Battle')
@@ -336,7 +340,7 @@ class DistributedCogdoInterior(DistributedObject.DistributedObject):
         self.reserveSuits = []
         for index in xrange(len(reserveIds)):
             suitId = reserveIds[index]
-            if self.cr.doId2do.has_key(suitId):
+            if suitId in self.cr.doId2do:
                 suit = self.cr.doId2do[suitId]
                 self.reserveSuits.append((suit, values[index]))
             else:

@@ -14,7 +14,7 @@ from toontown.toonbase import TTLocalizer
 from toontown.coghq import FactoryCameraViews
 from direct.controls.ControlManager import CollisionHandlerRayStart
 from otp.ai.MagicWordGlobal import *
-from otp.nametag.NametagConstants import *
+from toontown.nametag.NametagGlobals import *
 if __dev__:
     from otp.level import EditorGlobals
 
@@ -183,4 +183,4 @@ def factoryWarp(zoneNum):
     if (not factory) or (not isinstance(factory, DistributedFactory)):
         return 'You must be in a factory.'
     factory.warpToZone(zoneNum)
-    return 'Warped to zone: {0}'.format(zoneNum)
+    return 'Warped to zone: %d' % zoneNum

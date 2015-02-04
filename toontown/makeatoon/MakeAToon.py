@@ -1,29 +1,32 @@
-from pandac.PandaModules import *
-from toontown.distributed.ToontownMsgTypes import *
-from toontown.char import Char
-from otp.avatar import Avatar
-from toontown.toon import Toon
-from toontown.toon import LocalToon
-from toontown.toon import ToonDNA
-from toontown.char import CharDNA
+from direct.actor.Actor import Actor
+from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from direct.fsm import StateData
-from toontown.toonbase import ToontownGlobals
-from direct.actor.Actor import Actor
-from direct.task import Task
 from direct.gui.DirectGui import *
-from toontown.toonbase import TTLocalizer
-from MakeAToonGlobals import *
 from direct.interval.IntervalGlobal import *
-from direct.directnotify import DirectNotifyGlobal
-from toontown.toontowngui import TTDialog
-import GenderShop
+from direct.task import Task
+from pandac.PandaModules import *
+import random
+
 import BodyShop
 import ColorShop
+import GenderShop
+from MakeAToonGlobals import *
 import MakeClothesGUI
 import NameShop
-import random
+from otp.avatar import Avatar
+from toontown.char import Char
+from toontown.char import CharDNA
+from toontown.chat.ChatGlobals import *
+from toontown.distributed.ToontownMsgTypes import *
+from toontown.toon import LocalToon
+from toontown.toon import Toon
+from toontown.toon import ToonDNA
+from toontown.toonbase import TTLocalizer
+from toontown.toonbase import ToontownGlobals
+from toontown.toontowngui import TTDialog
+
 
 class MakeAToon(StateData.StateData):
     notify = DirectNotifyGlobal.directNotify.newCategory('MakeAToon')
@@ -84,7 +87,6 @@ class MakeAToon(StateData.StateData):
         self.focusOutIval = None
         self.focusInIval = None
         self.toon = None
-        return
 
     def getToon(self):
         return self.toon
@@ -93,7 +95,6 @@ class MakeAToon(StateData.StateData):
         self.notify.debug('Starting Make A Toon.')
         if base.config.GetBool('want-qa-regression', 0):
             self.notify.info('QA-REGRESSION: MAKEATOON: Starting Make A Toon')
-        base.cr.centralLogger.writeClientEvent('MAT - startingMakeAToon')
         base.camLens.setMinFov(ToontownGlobals.MakeAToonCameraFov/(4./3.))
         base.playMusic(self.music, looping=1, volume=self.musicVolume)
         camera.setPosHpr(-5.7, -12.3501, 2.15, -24.8499, 2.73, 0)
@@ -125,17 +126,29 @@ class MakeAToon(StateData.StateData):
 
     def load(self):
         gui = loader.loadModel('phase_3/models/gui/tt_m_gui_mat_mainGui')
+        gui.flattenMedium()
         guiAcceptUp = gui.find('**/tt_t_gui_mat_okUp')
+        guiAcceptUp.flattenStrong()
         guiAcceptDown = gui.find('**/tt_t_gui_mat_okDown')
+        guiAcceptDown.flattenStrong()
         guiCancelUp = gui.find('**/tt_t_gui_mat_closeUp')
+        guiCancelUp.flattenStrong()
         guiCancelDown = gui.find('**/tt_t_gui_mat_closeDown')
+        guiCancelDown.flattenStrong()
         guiNextUp = gui.find('**/tt_t_gui_mat_nextUp')
+        guiNextUp.flattenStrong()
         guiNextDown = gui.find('**/tt_t_gui_mat_nextDown')
+        guiNextDown.flattenStrong()
         guiNextDisabled = gui.find('**/tt_t_gui_mat_nextDisabled')
+        guiNextDisabled.flattenStrong()
         skipTutorialUp = gui.find('**/tt_t_gui_mat_skipUp')
+        skipTutorialUp.flattenStrong()
         skipTutorialDown = gui.find('**/tt_t_gui_mat_skipDown')
+        skipTutorialDown.flattenStrong()
         rotateUp = gui.find('**/tt_t_gui_mat_arrowRotateUp')
+        rotateUp.flattenStrong()
         rotateDown = gui.find('**/tt_t_gui_mat_arrowRotateDown')
+        rotateDown.flattenStrong()
         self.guiTopBar = DirectFrame(relief=None, text=TTLocalizer.CreateYourToon, text_font=ToontownGlobals.getSignFont(), text_fg=(0.0, 0.65, 0.35, 1), text_scale=0.18, text_pos=(0, -0.03), pos=(0, 0, 0.86))
         self.guiTopBar.hide()
         self.guiBottomBar = DirectFrame(relief=None, image_scale=(1.25, 1, 1), pos=(0.01, 0, -0.86))
@@ -178,6 +191,7 @@ class MakeAToon(StateData.StateData):
          rotateDown,
          rotateUp,
          rotateDown), image_scale=(-0.4, 0.4, 0.4), image1_scale=(-0.5, 0.5, 0.5), image2_scale=(-0.5, 0.5, 0.5), pos=(-0.355, 0, 0.36))
+        self.rotateLeftButton.flattenMedium()
         self.rotateLeftButton.reparentTo(base.a2dBottomCenter)
         self.rotateLeftButton.hide()
         self.rotateLeftButton.bind(DGG.B1PRESS, self.rotateToonLeft)
@@ -186,6 +200,7 @@ class MakeAToon(StateData.StateData):
          rotateDown,
          rotateUp,
          rotateDown), image_scale=(0.4, 0.4, 0.4), image1_scale=(0.5, 0.5, 0.5), image2_scale=(0.5, 0.5, 0.5), pos=(0.355, 0, 0.36))
+        self.rotateRightButton.flattenStrong()
         self.rotateRightButton.reparentTo(base.a2dBottomCenter)
         self.rotateRightButton.hide()
         self.rotateRightButton.bind(DGG.B1PRESS, self.rotateToonRight)
@@ -216,19 +231,32 @@ class MakeAToon(StateData.StateData):
         ee.bind(DGG.B1PRESS, lambda x, ee = ee: self.toggleSlide())
         self.eee = ee
         self.room = loader.loadModel('phase_3/models/makeatoon/tt_m_ara_mat_room')
+        self.room.flattenMedium()
         self.genderWalls = self.room.find('**/genderWalls')
+        self.genderWalls.flattenStrong()
         self.genderProps = self.room.find('**/genderProps')
+        self.genderProps.flattenStrong()
         self.bodyWalls = self.room.find('**/bodyWalls')
+        self.bodyWalls.flattenStrong()
         self.bodyProps = self.room.find('**/bodyProps')
+        self.bodyProps.flattenStrong()
         self.colorWalls = self.room.find('**/colorWalls')
+        self.colorWalls.flattenStrong()
         self.colorProps = self.room.find('**/colorProps')
+        self.colorProps.flattenStrong()
         self.clothesWalls = self.room.find('**/clothWalls')
+        self.clothesWalls.flattenMedium()
         self.clothesProps = self.room.find('**/clothProps')
+        self.clothesProps.flattenMedium()
         self.nameWalls = self.room.find('**/nameWalls')
+        self.nameWalls.flattenStrong()
         self.nameProps = self.room.find('**/nameProps')
+        self.nameProps.flattenStrong()
         self.background = self.room.find('**/background')
+        self.background.flattenStrong()
         self.background.reparentTo(render)
         self.floor = self.room.find('**/floor')
+        self.floor.flattenStrong()
         self.floor.reparentTo(render)
         self.spotlight = self.room.find('**/spotlight')
         self.spotlight.reparentTo(self.spotlightJoint)
@@ -265,13 +293,11 @@ class MakeAToon(StateData.StateData):
         self.musicVolume = base.config.GetFloat('makeatoon-music-volume', 1)
         self.sfxVolume = base.config.GetFloat('makeatoon-sfx-volume', 1)
         self.soundBack = base.loadSfx('phase_3/audio/sfx/GUI_create_toon_back.ogg')
-        self.crashSounds = []
-        self.crashSounds.append(base.loadSfx('phase_3/audio/sfx/tt_s_ara_mat_crash_boing.ogg'))
-        self.crashSounds.append(base.loadSfx('phase_3/audio/sfx/tt_s_ara_mat_crash_glassBoing.ogg'))
-        self.crashSounds.append(base.loadSfx('phase_3/audio/sfx/tt_s_ara_mat_crash_wood.ogg'))
-        self.crashSounds.append(base.loadSfx('phase_3/audio/sfx/tt_s_ara_mat_crash_woodBoing.ogg'))
-        self.crashSounds.append(base.loadSfx('phase_3/audio/sfx/tt_s_ara_mat_crash_woodGlass.ogg'))
-        return
+        self.crashSounds = map(base.loadSfx, ['phase_3/audio/sfx/tt_s_ara_mat_crash_boing.ogg',
+                                              'phase_3/audio/sfx/tt_s_ara_mat_crash_glassBoing.ogg',
+                                              'phase_3/audio/sfx/tt_s_ara_mat_crash_wood.ogg',
+                                              'phase_3/audio/sfx/tt_s_ara_mat_crash_woodBoing.ogg',
+                                              'phase_3/audio/sfx/tt_s_ara_mat_crash_woodGlass.ogg'])
 
     def unload(self):
         self.exit()
@@ -419,7 +445,6 @@ class MakeAToon(StateData.StateData):
         pass
 
     def enterGenderShop(self):
-        base.cr.centralLogger.writeClientEvent('MAT - enteringGenderShop')
         self.shop = GENDERSHOP
         if GENDERSHOP not in self.shopsVisited:
             self.shopsVisited.append(GENDERSHOP)
@@ -459,7 +484,6 @@ class MakeAToon(StateData.StateData):
         self.rotateRightButton.show()
 
     def enterBodyShop(self):
-        base.cr.centralLogger.writeClientEvent('MAT - enteringBodyShop')
         self.toon.show()
         self.shop = BODYSHOP
         self.guiTopBar['text'] = TTLocalizer.ShapeYourToonTitle
@@ -496,7 +520,6 @@ class MakeAToon(StateData.StateData):
         self.rotateRightButton.show()
 
     def enterColorShop(self):
-        base.cr.centralLogger.writeClientEvent('MAT - enteringColorShop')
         self.shop = COLORSHOP
         self.guiTopBar['text'] = TTLocalizer.PaintYourToonTitle
         self.guiTopBar['text_fg'] = (0, 1, 1, 1)
@@ -533,7 +556,6 @@ class MakeAToon(StateData.StateData):
         self.rotateRightButton.show()
 
     def enterClothesShop(self):
-        base.cr.centralLogger.writeClientEvent('MAT - enteringClothesShop')
         self.shop = CLOTHESSHOP
         self.guiTopBar['text'] = TTLocalizer.PickClothesTitle
         self.guiTopBar['text_fg'] = (1, 0.92, 0.2, 1)
@@ -575,7 +597,6 @@ class MakeAToon(StateData.StateData):
         return Task.done
 
     def enterNameShop(self):
-        base.cr.centralLogger.writeClientEvent('MAT - enteringNameShop')
         self.shop = NAMESHOP
         self.guiTopBar['text'] = TTLocalizer.NameToonTitle
         self.guiTopBar['text_fg'] = (0.0, 0.98, 0.5, 1)

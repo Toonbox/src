@@ -7,7 +7,7 @@ from pandac.PandaModules import CollisionSphere, CollisionNode
 from toontown.toonbase import ToontownGlobals
 from toontown.estate import DistributedCannon
 from toontown.estate import CannonGlobals
-from otp.nametag import NametagGlobals
+from toontown.nametag import NametagGlobals
 from direct.gui.DirectGui import *
 from pandac.PandaModules import *
 from toontown.toon import NPCToons
@@ -233,7 +233,7 @@ class DistributedLawbotCannon(DistributedObject.DistributedObject):
                 camera.setPos(0.5, -2, 2.5)
                 camera.setHpr(0, 0, 0)
                 self.boss.toonEnteredCannon(self.avId, self.index)
-            if self.cr.doId2do.has_key(self.avId):
+            if self.avId in self.cr.doId2do:
                 self.av = self.cr.doId2do[self.avId]
                 self.acceptOnce(self.av.uniqueName('disable'), self.__avatarGone)
                 self.av.loop('neutral')
@@ -253,7 +253,7 @@ class DistributedLawbotCannon(DistributedObject.DistributedObject):
     def __makeGui(self):
         if self.madeGui:
             return
-        NametagGlobals.setMasterArrowsOn(0)
+        NametagGlobals.setWant2dNametags(False)
         guiModel = 'phase_4/models/gui/cannon_game_gui'
         cannonGui = loader.loadModel(guiModel)
         self.aimPad = DirectFrame(image=cannonGui.find('**/CannonFire_PAD'), relief=None, pos=(0.7, 0, -0.553333), scale=0.8)
@@ -297,7 +297,7 @@ class DistributedLawbotCannon(DistributedObject.DistributedObject):
         if self.flashingLabel:
             self.flashingLabel.finish()
             self.flashingLabel = None
-        NametagGlobals.setMasterArrowsOn(1)
+        NametagGlobals.setWant2dNametags(True)
         self.__disableAimInterface()
         self.upButton.unbind(DGG.B1PRESS)
         self.upButton.unbind(DGG.B1RELEASE)

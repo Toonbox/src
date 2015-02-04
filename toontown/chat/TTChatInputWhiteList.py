@@ -78,14 +78,17 @@ class TTChatInputWhiteList(ChatInputWhiteListFrame):
         self.typeGrabbed = 0
 
     def typeCallback(self, extraArgs):
-        if self.typeGrabbed:
+        try:
+            if self.typeGrabbed:
+                return
+            self.applyFilter(extraArgs)
+            if localAvatar.chatMgr.chatInputWhiteList.isActive():
+                return
+            else:
+                messenger.send('wakeup')
+                messenger.send('enterNormalChat')
+        except UnicodeDecodeError:
             return
-        self.applyFilter(extraArgs)
-        if localAvatar.chatMgr.chatInputWhiteList.isActive():
-            return
-        else:
-            messenger.send('wakeup')
-            messenger.send('enterNormalChat')
 
     def destroy(self):
         self.chatEntry.destroy()
@@ -119,7 +122,7 @@ class TTChatInputWhiteList(ChatInputWhiteListFrame):
 
     def sendWhisperByFriend(self, avatarId, text):
         online = 0
-        if base.cr.doId2do.has_key(avatarId):
+        if avatarId in base.cr.doId2do:
             online = 1
         avatarUnderstandable = 0
         av = None
@@ -174,7 +177,7 @@ class TTChatInputWhiteList(ChatInputWhiteListFrame):
 
     def applyFilter(self, keyArgs, strict = False):
         text = self.chatEntry.get(plain=True)
-        if len(text) > 0 and text[0] in ['~', '>']:
+        if text.startswith('~'):
             self.okayToSubmit = True
         else:
             words = text.split(' ')
@@ -200,12 +203,15 @@ class TTChatInputWhiteList(ChatInputWhiteListFrame):
 
             if not strict:
                 lastword = words[-1]
-                if lastword == '' or self.whiteList.isPrefix(lastword) or not base.cr.whiteListChatEnabled:
-                    newwords[-1] = lastword
-                elif flag:
-                    newwords[-1] = '\x01WLDisplay\x01' + lastword + '\x02'
-                else:
-                    newwords[-1] = '\x01WLEnter\x01' + lastword + '\x02'
+                try:
+                    if lastword == '' or self.whiteList.isPrefix(lastword) or not base.cr.whiteListChatEnabled:
+                        newwords[-1] = lastword
+                    elif flag:
+                        newwords[-1] = '\x01WLDisplay\x01' + lastword + '\x02'
+                    else:
+                        newwords[-1] = '\x01WLEnter\x01' + lastword + '\x02'
+                except UnicodeDecodeError:
+                    self.okayToSubmit = False
             newtext = ' '.join(newwords)
             self.chatEntry.set(newtext)
         self.chatEntry.guiItem.setAcceptEnabled(self.okayToSubmit)

@@ -354,6 +354,25 @@ class SuitPlannerBase:
        8,
        9),
       []],
+     [10000,
+      3,
+      15,
+      0,
+      5,
+      15,
+      3,
+      (1,
+       5,
+       10,
+       40,
+       60,
+       80),
+      (100,
+       0,
+       0,
+       0),
+      (7, 8, 9, 10),
+      []],
      [11000,
       3,
       15,
@@ -483,6 +502,9 @@ class SuitPlannerBase:
         self.pointIndexes = {}
         return
 
+    def delete(self):
+        del self.dnaStore
+
     def setupDNA(self):
         if self.dnaStore:
             return None
@@ -498,7 +520,7 @@ class SuitPlannerBase:
         phase = ToontownGlobals.streetPhaseMap[hoodId]
         if hoodId == zoneId:
             zoneId = 'sz'
-        return 'phase_%s/dna/%s_%s.dna' % (phase, hood, zoneId)
+        return 'phase_%s/dna/%s_%s.pdna' % (phase, hood, zoneId)
 
     def getZoneId(self):
         return self.zoneId

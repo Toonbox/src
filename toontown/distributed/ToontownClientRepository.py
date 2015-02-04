@@ -1,6 +1,5 @@
 import types
 import time
-from pandac.PandaModules import *
 from direct.distributed.ClockDelta import *
 from direct.gui.DirectGui import *
 from pandac.PandaModules import *
@@ -53,6 +52,8 @@ import HoodMgr
 import PlayGame
 from toontown.toontowngui import ToontownLoadingBlocker
 from toontown.hood import StreetSign
+import random
+
 
 class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
     SupportTutorial = 1
@@ -70,10 +71,8 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         setInterfaceFont(TTLocalizer.InterfaceFont)
         setSignFont(TTLocalizer.SignFont)
         setFancyFont(TTLocalizer.FancyFont)
-        nameTagFontIndex = 0
-        for font in TTLocalizer.NametagFonts:
-            setNametagFont(nameTagFontIndex, TTLocalizer.NametagFonts[nameTagFontIndex])
-            nameTagFontIndex += 1
+        for i in xrange(len(TTLocalizer.NametagFonts)):
+            setNametagFont(i, TTLocalizer.NametagFonts[i])
 
         self.toons = {}
         if self.http.getVerifySsl() != HTTPClient.VSNoVerify:
@@ -96,7 +95,6 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.toontownTimeManager = ToontownTimeManager.ToontownTimeManager()
 
         self.csm = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_CLIENT_SERVICES_MANAGER, 'ClientServicesManager')
-        self.ssm = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_SYSTEM_SERVICES_MANAGER, 'SystemServicesManager')
         self.avatarFriendsManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_AVATAR_FRIENDS_MANAGER, 'AvatarFriendsManager')
         self.playerFriendsManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_PLAYER_FRIENDS_MANAGER, 'TTPlayerFriendsManager')
         self.ttiFriendsManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_TTI_FRIENDS_MANAGER, 'TTIFriendsManager')
@@ -108,6 +106,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.streetSign = None
         self.furnitureManager = None
         self.objectManager = None
+        self.openAvatarPanels = set()
         self.friendsMap = {}
         self.friendsOnline = {}
         self.friendsMapPending = 0
@@ -208,7 +207,8 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.sendSetAvatarIdMsg(0)
         self.clearFriendState()
         if self.music == None and base.musicManagerIsValid:
-            self.music = base.musicManager.getSound('phase_3/audio/bgm/tt_theme.ogg')
+            themeList = ('phase_3/audio/bgm/tti_theme.ogg', 'phase_3/audio/bgm/tti_theme_2.ogg')
+            self.music = base.musicManager.getSound(random.choice(themeList))
             if self.music:
                 self.music.setLoop(1)
                 self.music.setVolume(0.9)
@@ -232,18 +232,9 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         for av in avList:
             if av.position == index:
                 avatarChoice = av
-                self.notify.info('================')
-                self.notify.info('Chose avatar id: %s' % av.id)
-                self.notify.info('Chose avatar name: %s' % av.name)
                 dna = ToonDNA.ToonDNA()
                 dna.makeFromNetString(av.dna)
-                if base.logPrivateInfo:
-                    self.notify.info('Chose avatar dna: %s' % (dna.asTuple(),))
-                    self.notify.info('Chose avatar position: %s' % av.position)
-                    self.notify.info('isPaid: %s' % self.isPaid())
-                    self.notify.info('freeTimeLeft: %s' % self.freeTimeLeft())
-                    self.notify.info('allowSecretChat: %s' % self.allowSecretChat())
-                self.notify.info('================')
+                print '__handleAvatarChooserDone: %r, %r, %r, %r' % (av.id, av.name, dna.asTuple(), av.position)
 
         if done == 'chose':
             self.avChoice.exit()
@@ -343,13 +334,13 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
     def handleAvatarResponseMsg(self, avatarId, di):
         self.cleanupWaitingForDatabase()
         dclass = self.dclassesByName['DistributedToon']
-        NametagGlobals.setMasterArrowsOn(0)
+        NametagGlobals.setWant2dNametags(False)
         loader.beginBulkLoad('localAvatarPlayGame', OTPLocalizer.CREnteringToontown, 400, 1, TTLocalizer.TIP_GENERAL, 0)
         localAvatar = LocalToon.LocalToon(self)
         localAvatar.dclass = dclass
         base.localAvatar = localAvatar
         __builtins__['localAvatar'] = base.localAvatar
-        NametagGlobals.setToon(base.localAvatar)
+        NametagGlobals.setMe(base.localAvatar)
         localAvatar.doId = avatarId
         self.localAvatarDoId = avatarId
         parentId = None
@@ -366,36 +357,22 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.loginFSM.request('playingGame')
 
     def getAvatarDetails(self, avatar, func, *args):
-        avId = avatar.doId
-        if avId in self.doId2do:
-            func(1, self.doId2do[avId], *args)
-            return
-
         pad = ScratchPad()
         pad.func = func
         pad.args = args
         pad.avatar = avatar
         pad.delayDelete = DelayDelete.DelayDelete(avatar, 'getAvatarDetails')
-        self.__queryAvatarMap[avId] = pad
-        self.__sendGetAvatarDetails(avId)
+        self.__queryAvatarMap[avatar.doId] = pad
+        self.__sendGetAvatarDetails(avatar.doId)
 
     def cancelAvatarDetailsRequest(self, avatar):
         avId = avatar.doId
-        if self.__queryAvatarMap.has_key(avId):
+        if avId in self.__queryAvatarMap:
             pad = self.__queryAvatarMap.pop(avId)
             pad.delayDelete.destroy()
 
     def __sendGetAvatarDetails(self, avId):
-        #return
-
         self.ttiFriendsManager.d_getAvatarDetails(avId)
-
-        return
-        datagram = PyDatagram()
-        avatar = self.__queryAvatarMap[avId].avatar
-        datagram.addUint16(avatar.getRequestID())
-        datagram.addUint32(avId)
-        self.send(datagram)
 
     def n_handleGetAvatarDetailsResp(self, avId, fields):
         self.notify.info('Query reponse for avId %d' % avId)
@@ -488,7 +465,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
                 self.notify.error('could not delete localAvatar, delayDeletes=%s' % (base.localAvatar.getDelayDeleteNames(),))
             base.localAvatar.deleteOrDelay()
             base.localAvatar.detectLeaks()
-            NametagGlobals.setToon(base.cam)
+            NametagGlobals.setMe(base.cam)
             del base.localAvatar
             del __builtins__['localAvatar']
         base.localAvatarStyle = None
@@ -730,17 +707,17 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         return 0
 
     def isFriendOnline(self, doId):
-        return self.friendsOnline.has_key(doId)
+        return doId in self.friendsOnline
 
     def addAvatarToFriendsList(self, avatar):
         self.friendsMap[avatar.doId] = avatar
 
     def identifyFriend(self, doId, source = None):
-        if self.friendsMap.has_key(doId):
+        if doId in self.friendsMap:
             teleportNotify.debug('friend %s in friendsMap' % doId)
             return self.friendsMap[doId]
         avatar = None
-        if self.doId2do.has_key(doId):
+        if doId in self.doId2do:
             teleportNotify.debug('found friend %s in doId2do' % doId)
             avatar = self.doId2do[doId]
         elif self.cache.contains(doId):
@@ -773,7 +750,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         return base.cr.playerFriendsManager.getFriendInfo(pId)
 
     def identifyAvatar(self, doId):
-        if self.doId2do.has_key(doId):
+        if doId in self.doId2do:
             return self.doId2do[doId]
         else:
             return self.identifyFriend(doId)
@@ -784,14 +761,11 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
                 return 0
 
         if base.wantPets and base.localAvatar.hasPet():
-            print str(self.friendsMap)
-            print str(self.friendsMap.has_key(base.localAvatar.getPetId()))
-            if self.friendsMap.has_key(base.localAvatar.getPetId()) == None:
+            if base.localAvatar.getPetId() not in self.friendsMap:
                 return 0
         return 1
 
     def removeFriend(self, avatarId):
-        #base.localAvatar.sendUpdate('friendsNotify', [base.localAvatar.doId, 1], sendToId=avatarId)
         self.ttiFriendsManager.d_removeFriend(avatarId)
 
     def clearFriendState(self):
@@ -814,12 +788,12 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
 
     def removePetFromFriendsMap(self):
         doId = base.localAvatar.getPetId()
-        if doId and self.friendsMap.has_key(doId):
+        if doId and doId in self.friendsMap:
             del self.friendsMap[doId]
 
     def addPetToFriendsMap(self, callback = None):
         doId = base.localAvatar.getPetId()
-        if not doId or self.friendsMap.has_key(doId):
+        if doId not in self.friendsMap:
             if callback:
                 callback()
             return
@@ -847,9 +821,9 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             petId = toon[3]
             handle = FriendHandle.FriendHandle(doId, name, dna, petId)
             self.friendsMap[doId] = handle
-            if self.friendsOnline.has_key(doId):
+            if doId in self.friendsOnline:
                 self.friendsOnline[doId] = handle
-            if self.friendPendingChatSettings.has_key(doId):
+            if doId in self.friendPendingChatSettings:
                 self.notify.debug('calling setCommonAndWL %s' % str(self.friendPendingChatSettings[doId]))
                 handle.setCommonAndWhitelistChatFlags(*self.friendPendingChatSettings[doId])
 
@@ -887,7 +861,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
 
     def handleFriendOnline(self, doId, commonChatFlags, whitelistChatFlags):
         self.notify.debug('Friend %d now online. common=%d whitelist=%d' % (doId, commonChatFlags, whitelistChatFlags))
-        if not self.friendsOnline.has_key(doId):
+        if doId not in self.friendsOnline:
             self.friendsOnline[doId] = self.identifyFriend(doId)
             messenger.send('friendOnline', [doId, commonChatFlags, whitelistChatFlags])
             if not self.friendsOnline[doId]:
@@ -1013,7 +987,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         return True
 
     def sendQuietZoneRequest(self):
-        self.sendSetZoneMsg(OTPGlobals.QuietZone)
+        self.sendSetZoneMsg(OTPGlobals.QuietZone, [])
 
     def handleQuietZoneGenerateWithRequired(self, di):
         doId = di.getUint32()
@@ -1057,7 +1031,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.deleteObject(doId)
 
     def deleteObject(self, doId, ownerView = False):
-        if self.doId2do.has_key(doId):
+        if doId in self.doId2do:
             obj = self.doId2do[doId]
             del self.doId2do[doId]
             obj.deleteOrDelay()

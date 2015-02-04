@@ -355,7 +355,7 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
         self.arrangeToonHeadPanels()
 
     def removeToonHeadPanel(self, avId):
-        if self.toonPanels.has_key(avId):
+        if avId in self.toonPanels:
             self.toonPanels[avId].destroy()
             del self.toonPanels[avId]
             self.arrangeToonHeadPanels()
@@ -428,7 +428,7 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
         self.isActive = 1
         self.__setCamera()
         self.spriteNode.show()
-        base.setCellsAvailable([base.bottomCells[1], base.bottomCells[2], base.bottomCells[3]], 0)
+        base.setCellsActive([base.bottomCells[1], base.bottomCells[2], base.bottomCells[3]], 0)
         self.setupFlag = 1
 
     def startBoard(self, board, attackPattern):
@@ -568,7 +568,7 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
         self.isActive = 0
         if self.standbySprite:
             self.standbySprite.nodeObj.hide()
-        base.setCellsAvailable([base.bottomCells[1], base.bottomCells[2], base.bottomCells[3]], 1)
+        base.setCellsActive([base.bottomCells[1], base.bottomCells[2], base.bottomCells[3]], 1)
         self.sendUpdate('leaveGame', [])
         return
 
@@ -1417,7 +1417,7 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
 
         for entryIndex in xrange(len(scoreList)):
             entry = scoreList[entryIndex]
-            if self.toonPanels.has_key(entry[0]):
+            if entry[0] in self.toonPanels:
                 panel = self.toonPanels[entry[0]]
                 panel.extraData['text'] = TTLocalizer.GolfGreenGamePlayerScore % entry[1]
 
@@ -1470,5 +1470,5 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
             keyList.append(key)
 
         for key in keyList:
-            if self.__toonTracks.has_key(key):
+            if key in self.__toonTracks:
                 self.clearToonTrack(key)

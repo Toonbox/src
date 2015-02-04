@@ -8,7 +8,6 @@ from toontown.launcher import DownloadForceAcknowledge
 from direct.gui.DirectGui import *
 from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import DisplayOptions
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 import random
@@ -33,21 +32,13 @@ class AvatarChooser(StateData.StateData):
         StateData.StateData.__init__(self, doneEvent)
         self.choice = None
         self.avatarList = avatarList
-        self.displayOptions = None
         self.fsm = ClassicFSM.ClassicFSM('AvatarChooser', [State.State('Choose', self.enterChoose, self.exitChoose, ['CheckDownload']), State.State('CheckDownload', self.enterCheckDownload, self.exitCheckDownload, ['Choose'])], 'Choose', 'Choose')
         self.fsm.enterInitialState()
         self.parentFSM = parentFSM
         self.parentFSM.getCurrentState().addChild(self.fsm)
-        return
 
     def enter(self):
         self.notify.info('AvatarChooser.enter')
-        if not self.displayOptions:
-            self.displayOptions = DisplayOptions.DisplayOptions()
-        self.notify.info('calling self.displayOptions.restrictToEmbedded(False)')
-        if base.appRunner:
-            self.displayOptions.loadFromSettings()
-            self.displayOptions.restrictToEmbedded(False)
         if self.isLoaded == 0:
             self.load()
         base.disableMouse()
@@ -84,18 +75,25 @@ class AvatarChooser(StateData.StateData):
             return None
         self.isPaid = isPaid
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui')
+        gui.flattenMedium()
         gui2 = loader.loadModel('phase_3/models/gui/quit_button')
+        gui2.flattenMedium()
         newGui = loader.loadModel('phase_3/models/gui/tt_m_gui_pat_mainGui')
+        newGui.flattenMedium()
         self.pickAToonBG = newGui.find('**/tt_t_gui_pat_background')
+        self.pickAToonBG.flattenStrong()
         self.pickAToonBG.reparentTo(hidden)
         self.pickAToonBG.setPos(0.0, 2.73, 0.0)
         self.pickAToonBG.setScale(1.5, 1, 2)
         self.title = OnscreenText(TTLocalizer.AvatarChooserPickAToon, scale=TTLocalizer.ACtitle, parent=hidden, font=ToontownGlobals.getSignFont(), fg=(1, 0.9, 0.1, 1), pos=(0.0, 0.82))
+        self.title.flattenStrong()
         quitHover = gui.find('**/QuitBtn_RLVR')
         self.quitButton = DirectButton(image=(quitHover, quitHover, quitHover), relief=None, text=TTLocalizer.AvatarChooserQuit, text_font=ToontownGlobals.getSignFont(), text_fg=(0.977, 0.816, 0.133, 1), text_pos=TTLocalizer.ACquitButtonPos, text_scale=TTLocalizer.ACquitButton, image_scale=1, image1_scale=1.05, image2_scale=1.05, scale=1.05, pos=(-0.25, 0, 0.075), command=self.__handleQuit)
+        self.quitButton.flattenMedium()
         self.quitButton.reparentTo(base.a2dBottomRight)
         self.logoutButton = DirectButton(relief=None, image=(quitHover, quitHover, quitHover), text=TTLocalizer.OptionsPageLogout, text_font=ToontownGlobals.getSignFont(), text_fg=(0.977, 0.816, 0.133, 1), text_scale=TTLocalizer.AClogoutButton, text_pos=(0, -0.035), pos=(0.15, 0, 0.05), image_scale=1.15, image1_scale=1.15, image2_scale=1.18, scale=0.5, command=self.__handleLogoutWithoutConfirm)
         self.logoutButton.reparentTo(base.a2dBottomLeft)
+        self.logoutButton.flattenMedium()
         self.logoutButton.hide()
         gui.removeNode()
         gui2.removeNode()

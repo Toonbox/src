@@ -14,14 +14,15 @@ import random
 
 import DistributedBossCog
 import SuitDNA
-from otp.nametag.NametagConstants import *
 from toontown.battle import BattleBase
 from toontown.battle import MovieToonVictory
 from toontown.battle import RewardPanel
 from toontown.battle import SuitBattleGlobals
 from toontown.battle.BattleProps import *
+from toontown.chat.ChatGlobals import *
 from toontown.coghq import CogDisguiseGlobals
 from toontown.distributed import DelayDelete
+from toontown.nametag.NametagGlobals import *
 from toontown.suit import SellbotBossGlobals
 from toontown.toon import NPCToons
 from toontown.toonbase import TTLocalizer
@@ -215,6 +216,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.cagedToon.reparentTo(self.cage)
         self.cagedToon.setPosHpr(0, -2, 0, 180, 0, 0)
         self.cagedToon.loop('neutral')
+        self.cagedToon.setActiveShadow(0)
         touch = CollisionPolygon(
             Point3(-3.0382, 3.0382, -1), Point3(3.0382, 3.0382, -1),
             Point3(3.0382, -3.0382, -1), Point3(-3.0382, -3.0382, -1))
@@ -552,6 +554,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.promotionMusic = base.loadMusic('phase_7/audio/bgm/encntr_suit_winning_indoor.ogg')
         self.betweenBattleMusic = base.loadMusic('phase_9/audio/bgm/encntr_toon_winning.ogg')
         self.battleTwoMusic = base.loadMusic('phase_7/audio/bgm/encntr_suit_winning_indoor.ogg')
+        self.battleThreeMusic = base.loadMusic('phase_9/audio/bgm/encntr_vp_boss.ogg')
         self.geom.reparentTo(render)
 
     def unloadEnvironment(self):

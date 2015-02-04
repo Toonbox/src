@@ -1940,7 +1940,8 @@ allColorsList = [VBase4(1.0, 1.0, 1.0, 1.0),
  VBase4(0.898438, 0.617188, 0.90625, 1.0),
  VBase4(0.7, 0.7, 0.8, 1.0),
  VBase4(0.3, 0.3, 0.35, 1.0)]
-defaultBoyColorList = [1,
+defaultBoyColorList = [0,
+ 1,
  2,
  3,
  4,
@@ -1963,8 +1964,11 @@ defaultBoyColorList = [1,
  21,
  22,
  23,
- 24]
-defaultGirlColorList = [1,
+ 24,
+ 25,
+ 26]
+defaultGirlColorList = [0,
+ 1,
  2,
  3,
  4,
@@ -1987,7 +1991,9 @@ defaultGirlColorList = [1,
  21,
  22,
  23,
- 24]
+ 24,
+ 25,
+ 26]
 allColorsListApproximations = map(lambda x: VBase4(round(x[0], 3), round(x[1], 3), round(x[2], 3), round(x[3], 3)), allColorsList)
 allowedColors = set(map(lambda x: allColorsListApproximations[x], set([0] + defaultBoyColorList + defaultGirlColorList + [26])))
 HatModels = [None,
@@ -2046,7 +2052,8 @@ HatModels = [None,
  'phase_4/models/accessories/tt_m_chr_avt_acc_hat_bandana',
  'phase_4/models/accessories/tt_m_chr_avt_acc_hat_dinosaur',
  'phase_4/models/accessories/tt_m_chr_avt_acc_hat_band',
- 'phase_4/models/accessories/tt_m_chr_avt_acc_hat_birdNest']
+ 'phase_4/models/accessories/tt_m_chr_avt_acc_hat_birdNest',
+ 'phase_4/models/accessories/tt_m_chr_avt_acc_hat_mousekateer']
 HatTextures = [None,
  'phase_4/maps/tt_t_chr_avt_acc_hat_ribbonRed.jpg',
  'phase_4/maps/tt_t_chr_avt_acc_hat_ribbonPurple.jpg',
@@ -2067,7 +2074,8 @@ HatTextures = [None,
  'phase_4/maps/tt_t_chr_avt_acc_hat_baseballPurple.jpg',
  'phase_4/maps/tt_t_chr_avt_acc_hat_ribbonCheckerGreen.jpg',
  'phase_4/maps/tt_t_chr_avt_acc_hat_partyToon.jpg',
- 'phase_4/maps/tt_t_chr_avt_acc_hat_bowlerRoger.jpg']
+ 'phase_4/maps/tt_t_chr_avt_acc_hat_bowlerRoger.jpg',
+ 'phase_4/maps/tt_m_chr_avt_acc_hat_mousekateer.jpg']
 GlassesModels = [None,
  'phase_4/models/accessories/tt_m_chr_avt_acc_msk_roundGlasses',
  'phase_4/models/accessories/tt_m_chr_avt_acc_msk_miniblinds',
@@ -2255,7 +2263,8 @@ HatStyles = {'none': [0, 0, 0],
  'hpc1': [32, 0, 0],
  'hrb8': [3, 16, 0],
  'hrb9': [3, 18, 0],
- 'hhw1': [53, 0, 0]}
+ 'hhw1': [53, 0, 0],
+ 'kmh1': [57, 0, 0]}
 GlassesStyles = {'none': [0, 0, 0],
  'grd1': [1, 0, 0],
  'gmb1': [2, 0, 0],

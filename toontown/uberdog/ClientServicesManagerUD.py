@@ -1,4 +1,4 @@
-import anydbm
+import semidbm
 import base64
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
@@ -7,14 +7,15 @@ from direct.fsm.FSM import FSM
 import hashlib
 import hmac
 import json
-from otp.ai.MagicWordGlobal import *
 from pandac.PandaModules import *
 import time
+import urllib2
+
+from otp.ai.MagicWordGlobal import *
+from otp.distributed import OtpDoGlobals
 from toontown.makeatoon.NameGenerator import NameGenerator
 from toontown.toon.ToonDNA import ToonDNA
-import urllib2
 from toontown.toonbase import TTLocalizer
-import hmac
 
 
 # Import from PyCrypto only if we are using a database that requires it. This
@@ -25,7 +26,7 @@ if accountDBType == 'remote':
 
 # Sometimes we'll want to force a specific access level, such as on the
 # developer server:
-minAccessLevel = simbase.config.GetInt('account-server-min-access-level', 0)
+minAccessLevel = simbase.config.GetInt('min-access-level', 100)
 
 accountServerEndpoint = simbase.config.GetString(
     'account-server-endpoint', 'https://toontowninfinite.com/api/')
@@ -48,7 +49,7 @@ def executeHttpRequest(url, **extras):
         request.add_header('X-CSM-' + k, v)
     try:
         return urllib2.urlopen(request).read()
-    except urllib2.HTTPError:
+    except:
         return None
 
 
@@ -85,8 +86,8 @@ class AccountDB:
         self.csm = csm
 
         filename = simbase.config.GetString(
-            'account-bridge-filename', 'account-bridge.db')
-        self.dbm = anydbm.open(filename, 'c')
+            'account-bridge-filename', 'account-bridge')
+        self.dbm = semidbm.open(filename, 'c')
 
     def addNameRequest(self, avId, name):
         return 'Success'
@@ -101,12 +102,12 @@ class AccountDB:
         pass  # Inheritors should override this.
 
     def storeAccountID(self, userId, accountId, callback):
-        self.dbm[str(userId)] = str(accountId)  # anydbm only allows strings.
+        self.dbm[str(userId)] = str(accountId)  # semidbm only allows strings.
         if getattr(self.dbm, 'sync', None):
             self.dbm.sync()
             callback(True)
         else:
-            self.notify.warning('Unable to associate user {0} with account {1}!'.format(userId, accountId))
+            self.notify.warning('Unable to associate user %s with account %d!' % (userId, accountId))
             callback(False)
 
 
@@ -351,13 +352,14 @@ class LoginAccountFSM(OperationFSM):
 
     def enterCreateAccount(self):
         self.account = {
-            'ACCOUNT_AV_SET': [0]*6,
+            'ACCOUNT_AV_SET': [0] * 6,
             'ESTATE_ID': 0,
             'ACCOUNT_AV_SET_DEL': [],
-            'CREATED': time.ctime(time.mktime(time.gmtime())),
-            'LAST_LOGIN': time.ctime(time.mktime(time.gmtime())),
+            'CREATED': time.ctime(),
+            'LAST_LOGIN': time.ctime(),
             'ACCOUNT_ID': str(self.userId),
-            'ACCESS_LEVEL': self.accessLevel
+            'ACCESS_LEVEL': self.accessLevel,
+            'MONEY': 0
         }
         self.csm.air.dbInterface.createObject(
             self.csm.air.dbId,
@@ -420,6 +422,14 @@ class LoginAccountFSM(OperationFSM):
         datagram.addChannel(self.csm.GetAccountConnectionChannel(self.accountId))
         self.csm.air.send(datagram)
 
+        # Add this connection to extra channels which may be useful:
+        if self.accessLevel > 100:
+            datagram = PyDatagram()
+            datagram.addServerHeader(self.target, self.csm.air.ourChannel,
+                                     CLIENTAGENT_OPEN_CHANNEL)
+            datagram.addChannel(OtpDoGlobals.OTP_STAFF_CHANNEL)
+            self.csm.air.send(datagram)
+
         # Now set their sender channel to represent their account affiliation:
         datagram = PyDatagram()
         datagram.addServerHeader(
@@ -444,12 +454,12 @@ class LoginAccountFSM(OperationFSM):
             self.csm.air.dbId,
             self.accountId,
             self.csm.air.dclassesByName['AccountUD'],
-            {'LAST_LOGIN': time.ctime(time.mktime(time.gmtime())),
+            {'LAST_LOGIN': time.ctime(),
              'ACCOUNT_ID': str(self.userId)})
 
         # We're done.
         self.csm.air.writeServerEvent('accountLogin', self.target, self.accountId, self.userId)
-        self.csm.sendUpdateToChannel(self.target, 'acceptLogin', [int(time.mktime(time.gmtime()))])
+        self.csm.sendUpdateToChannel(self.target, 'acceptLogin', [int(time.time())])
         self.demand('Off')
 
 class CreateAvatarFSM(OperationFSM):
@@ -886,6 +896,23 @@ class LoadAvatarFSM(AvatarOperationFSM):
         self.avatar = fields
         self.demand('SetAvatar')
 
+    def enterSetAvatarTask(self, channel, task):
+        # Finally, grant ownership and shut down.
+        datagram = PyDatagram()
+        datagram.addServerHeader(
+            self.avId,
+            self.csm.air.ourChannel,
+            STATESERVER_OBJECT_SET_OWNER)
+        datagram.addChannel(self.target<<32 | self.avId)
+        self.csm.air.send(datagram)
+
+        # Tell the GlobalPartyManager as well:
+        self.csm.air.globalPartyMgr.avatarJoined(self.avId)
+
+        self.csm.air.writeServerEvent('avatarChosen', self.avId, self.target)
+        self.demand('Off')
+        return task.done
+
     def enterSetAvatar(self):
         channel = self.csm.GetAccountConnectionChannel(self.target)
 
@@ -908,7 +935,8 @@ class LoadAvatarFSM(AvatarOperationFSM):
         # Activate the avatar on the DBSS:
         self.csm.air.sendActivate(
             self.avId, 0, 0, self.csm.air.dclassesByName['DistributedToonUD'],
-            {'setAdminAccess': [self.account.get('ACCESS_LEVEL', 100)]})
+            {'setAdminAccess': [self.account.get('ACCESS_LEVEL', 100)],
+             'setBankMoney': [self.account.get('MONEY', 0)]})
 
         # Next, add them to the avatar channel:
         datagram = PyDatagram()
@@ -928,23 +956,10 @@ class LoadAvatarFSM(AvatarOperationFSM):
         datagram.addChannel(self.target<<32 | self.avId)
         self.csm.air.send(datagram)
 
-        # Finally, grant ownership and shut down.
-        datagram = PyDatagram()
-        datagram.addServerHeader(
-            self.avId,
-            self.csm.air.ourChannel,
-            STATESERVER_OBJECT_SET_OWNER)
-        datagram.addChannel(self.target<<32 | self.avId)
-        self.csm.air.send(datagram)
-
-        # Tell TTIFriendsManager somebody is logging in:
-        self.csm.air.friendsManager.toonOnline(self.avId, self.avatar)
-
-        # Tell the GlobalPartyManager as well:
-        self.csm.air.globalPartyMgr.avatarJoined(self.avId)
-
-        self.csm.air.writeServerEvent('avatarChosen', self.avId, self.target)
-        self.demand('Off')
+        # Eliminate race conditions.
+        taskMgr.doMethodLater(0.2, self.enterSetAvatarTask,
+                              'avatarTask-%s' % self.avId, extraArgs=[channel],
+                              appendTask=True)
 
 class UnloadAvatarFSM(OperationFSM):
     notify = directNotify.newCategory('UnloadAvatarFSM')
@@ -1029,7 +1044,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         elif accountDBType == 'remote':
             self.accountDB = RemoteAccountDB(self)
         else:
-            self.notify.error('Invalid accountdb-type: {0}'.format(accountDBType))
+            self.notify.error('Invalid accountdb-type: ' + accountDBType)
 
     def killConnection(self, connId, reason):
         datagram = PyDatagram()

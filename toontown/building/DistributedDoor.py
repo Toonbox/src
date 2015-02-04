@@ -14,11 +14,8 @@ from toontown.suit import Suit
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toontowngui import TTDialog
 from toontown.toontowngui import TeaserPanel
-from otp.nametag.NametagGroup import NametagGroup, Nametag
-
-
-if __debug__:
-    import pdb
+from toontown.nametag.NametagGroup import NametagGroup
+from toontown.nametag.Nametag import Nametag
 
 
 class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
@@ -109,17 +106,20 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
             return
         if self.nametag == None:
             self.nametag = NametagGroup()
+            self.nametag.setNametag3d(None)
             self.nametag.setFont(ToontownGlobals.getBuildingNametagFont())
             if TTLocalizer.BuildingNametagShadow:
                 self.nametag.setShadow(*TTLocalizer.BuildingNametagShadow)
-            self.nametag.setContents(Nametag.CName)
-            self.nametag.setColorCode(NametagGroup.CCToonBuilding)
-            self.nametag.setActive(0)
+            self.nametag.hideChat()
+            self.nametag.hideThought()
+            nametagColor = NametagGlobals.NametagColors[NametagGlobals.CCToonBuilding]
+            self.nametag.setNametagColor(nametagColor)
+            self.nametag.setActive(False)
             self.nametag.setAvatar(self.getDoorNodePath())
-            self.nametag.setObjectCode(self.block)
             name = self.cr.playGame.dnaStore.getTitleFromBlockNumber(self.block)
-            self.nametag.setName(name)
+            self.nametag.setText(name)
             self.nametag.manage(base.marginManager)
+            self.nametag.updateAll()
 
     def clearNametag(self):
         if self.nametag is not None:
@@ -210,6 +210,27 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
             self.bHasFlat = not self.findDoorNode('door*flat', True).isEmpty()
         self.hideDoorParts()
         self.setTriggerName()
+
+        # Check if we are dealing with a DDL HQ door...
+        if self.doorType == DoorTypes.EXT_HQ and \
+           ZoneUtil.getHoodId(self.zoneId) == ToontownGlobals.DonaldsDreamland:
+
+            # Get the doorTrigger...
+            building = self.getBuilding()
+            doorTrigger = building.find('**/%s' % self.getTriggerName())
+
+            # Check if the doorTrigger hasn't been 'fixed' already...
+            if not doorTrigger.getTag('fixed'):
+
+                # Reposition the doorTrigger based on its index...
+                if self.doorIndex == 0:
+                    doorTrigger.setY(doorTrigger, 0.25)
+                else:
+                    doorTrigger.setY(doorTrigger, -0.25)
+
+                # We are done :) Tag the door as fixed.
+                doorTrigger.setTag('fixed', 'true')
+
         self.accept(self.getEnterTriggerEvent(), self.doorTrigger)
         self.acceptOnce('clearOutToonInterior', self.doorTrigger)
         self.setupNametag()
@@ -406,14 +427,7 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         if self.doorType == DoorTypes.INT_STANDARD:
             otherNP = render.find('**/door_origin')
         elif self.doorType == DoorTypes.EXT_STANDARD:
-            if hasattr(self, 'tempDoorNodePath'):
-                return self.tempDoorNodePath
-            else:
-                posHpr = self.cr.playGame.dnaStore.getDoorPosHprFromBlockNumber(self.block)
-                otherNP = NodePath('doorOrigin')
-                otherNP.setPos(posHpr.getPos())
-                otherNP.setHpr(posHpr.getHpr())
-                self.tempDoorNodePath = otherNP
+            otherNP = self.getBuilding().find('**/*door_origin')
         elif self.doorType in self.specialDoorTypes:
             building = self.getBuilding()
             otherNP = building.find('**/door_origin_' + str(self.doorIndex))
@@ -628,8 +642,6 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
 
     def exitDoorEnterOpening(self, ts):
         doorFrameHoleLeft = self.findDoorNode('doorFrameHoleLeft')
-        if doorFrameHoleLeft is None:
-            return
         if doorFrameHoleLeft.isEmpty():
             self.notify.warning('enterOpening(): did not find flatDoors')
             return

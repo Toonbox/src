@@ -6,7 +6,7 @@ import string
 from otp.otpbase import OTPLocalizer
 from otp.otpbase import OTPGlobals
 from otp.uberdog import RejectCode
-from otp.nametag import NametagGlobals
+from toontown.nametag import NametagGlobals
 globalFriendSecret = None
 AccountSecret = 0
 AvatarSecret = 1
@@ -345,13 +345,13 @@ class FriendSecret(DirectFrame, StateData.StateData):
         self.secretText.hide()
         base.localAvatar.chatMgr.fsm.request('otherDialog')
         self.enterSecret['focus'] = 1
-        NametagGlobals.setOnscreenChatForced(1)
+        NametagGlobals.setForceOnscreenChat(True)
 
     def exit(self):
         if self.isEntered == 0:
             return
         self.isEntered = 0
-        NametagGlobals.setOnscreenChatForced(0)
+        NametagGlobals.setForceOnscreenChat(False)
         self.__cleanupFirstPage()
         self.ignoreAll()
         self.accept('clientCleanup', self.unload)
@@ -473,8 +473,7 @@ class FriendSecret(DirectFrame, StateData.StateData):
                 else:
                     self.notify.info('### useUnlimitedSecret')
                     base.cr.playerFriendsManager.sendRequestUseUnlimitedSecret(secret)
-        # self.nextText['text'] = OTPLocalizer.FriendSecretTryingSecret
-        self.nextText['text'] = OTPLocalizer.FriendSecretNotImplemented
+        self.nextText['text'] = OTPLocalizer.FriendSecretTryingSecret
         self.nextText.setPos(0, 0, 0.3)
         self.nextText.show()
         self.ok1.hide()
@@ -504,6 +503,8 @@ class FriendSecret(DirectFrame, StateData.StateData):
             self.nextText['text'] = OTPLocalizer.FriendSecretEnteredSecretSelf
         elif result == 4:
             self.nextText['text'] = OTPLocalizer.FriendSecretEnteredSecretWrongProduct % self.prefix
+        elif result == 5:
+            self.nextText['text'] = OTPLocalizer.FriendSecretNotImplemented
         self.nextText.show()
         self.cancel.hide()
         self.ok1.hide()

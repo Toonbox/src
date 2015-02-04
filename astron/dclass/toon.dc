@@ -88,6 +88,9 @@ from toontown.building import DistributedHQInterior/AI
 from toontown.building import DistributedGagshopInterior/AI
 from toontown.building import DistributedPetshopInterior/AI
 from toontown.building import DistributedKartShopInterior/AI
+from toontown.building import DistributedBankInterior/AI
+from toontown.building import DistributedBankCollectable/AI
+from toontown.building import DistributedLibraryInterior/AI
 from toontown.building import DistributedDoor/AI
 from toontown.building import DistributedAnimDoor/AI
 from toontown.estate import DistributedHouseDoor/AI
@@ -131,8 +134,7 @@ from toontown.estate import DistributedMailbox/AI
 from toontown.estate import DistributedFurnitureManager/AI
 from toontown.estate import DistributedFurnitureItem/AI
 from toontown.estate import DistributedBank/AI
-from toontown.toon import DistributedBankerMgr/AI
-from toontown.toon import DistributedBankerBobNPC/AI
+from toontown.toon import DistributedNPCBanker/AI
 from toontown.estate import DistributedCloset/AI
 from toontown.estate import DistributedTrunk/AI
 from toontown.estate import DistributedPhone/AI
@@ -203,7 +205,6 @@ from toontown.racing import DistributedLeaderBoard/AI
 from toontown.racing import DistributedGag/AI
 from toontown.racing import DistributedProjectile/AI
 from toontown.racing.DistributedStartingBlock/AI import DistributedViewingBlock/AI
-from toontown.uberdog.SystemServicesManager/AI/UD import SystemServicesManager/AI/UD
 from toontown.uberdog.ClientServicesManager/UD import ClientServicesManager/UD
 from toontown.uberdog.DistributedDeliveryManager/AI/UD import DistributedDeliveryManager/AI/UD
 from toontown.uberdog.DistributedDataStoreManager/AI/UD import DistributedDataStoreManager/AI/UD
@@ -285,7 +286,6 @@ from toontown.uberdog.DistributedPartyManager/AI/UD import DistributedPartyManag
 from toontown.rpc.AwardManager/UD import AwardManager/UD
 from toontown.uberdog.DistributedCpuInfoMgr/AI/UD import DistributedCpuInfoMgr/AI/UD
 from toontown.uberdog.DistributedSecurityMgr/AI/UD import DistributedSecurityMgr/AI/UD
-from toontown.rpc.RATManager/UD import RATManager/UD
 from toontown.uberdog.DistributedInGameNewsMgr/AI/UD import DistributedInGameNewsMgr/AI/UD
 from toontown.uberdog.DistributedWhitelistMgr/AI/UD import DistributedWhitelistMgr/AI/UD
 from toontown.coderedemption.TTCodeRedemptionMgr/AI/UD import TTCodeRedemptionMgr/AI/UD
@@ -420,6 +420,7 @@ dclass ToontownDistrictStats : DistributedObject {
   settoontownDistrictId(uint32) broadcast required ram;
   setAvatarCount(uint32) broadcast required ram;
   setNewAvatarCount(uint32) broadcast required ram;
+  setInvasionStatus(uint8) broadcast required ram;
   setStats : setAvatarCount, setNewAvatarCount;
 };
 
@@ -444,10 +445,8 @@ typedef int16 pair16[2];
 dclass DistributedToon : DistributedPlayer {
   setDNAString(blob) required broadcast ownrecv db;
   setGM(uint16 = 0) required broadcast ownrecv db;
-  setMaxBankMoney(int16 = 1200) required broadcast ownrecv db;
-  setBankMoney(int16 = 0) required broadcast ownrecv db;
-  setMaxMoney(int16 = 40) required broadcast ownrecv db;
-  setMoney(int16 = 0) required broadcast ownrecv db;
+  setMoney(int16 = 0) required ownrecv db;
+  setBankMoney(int32 = 0) required ownrecv;
   setMaxHp(int16 = 15) required broadcast ownrecv db;
   setHp(int16 = 15) required broadcast ownrecv db;
   toonUp(uint16) broadcast ownrecv;
@@ -458,7 +457,7 @@ dclass DistributedToon : DistributedPlayer {
   setTrackAccess(uint16[] = [0,0,0,0,1,1,0]) required broadcast ownrecv db;
   setTrackProgress(int8 = -1, uint32 = 0) required ownrecv db;
   setTrackBonusLevel(int8[] = [-1,-1,-1,-1,-1,-1,-1]) required broadcast ownrecv db;
-  setInventory(blob = [0*7, 0*7, 0*7, 0*7, 1, 0*6, 1, 0*6, 0*7]) required broadcast db;
+  setInventory(blob = [0*7, 0*7, 0*7, 0*7, 1, 0*6, 1, 0*6, 0*7]) required ownrecv db;
   setMaxNPCFriends(uint16 = 16) required ownrecv db;
   setNPCFriendsDict(FriendEntry[] = []) required ownrecv db;
   setDefaultShard(uint32 = 0) required ownrecv broadcast db;
@@ -468,7 +467,7 @@ dclass DistributedToon : DistributedPlayer {
   setHoodsVisited(uint32[] = [ 2000 ]) required ownrecv db;
   setInterface(blob = []) required ownrecv db;
   setLastHood(uint32 = 0) required ownrecv broadcast db;
-  setTutorialAck(uint8 = 0) required ownrecv db;
+  setTutorialAck(uint8) required ownrecv db;
   setMaxClothes(uint32 = 10) required ownrecv db;
   setClothesTopsList(uint8[] = []) required ownrecv db;
   setClothesBottomsList(uint8[] = []) required ownrecv db;
@@ -487,7 +486,7 @@ dclass DistributedToon : DistributedPlayer {
   setTunnelOut(int16, int16/10, int16/10, int16/10, int16/10, int16/100, int32/100) ownsend broadcast;
   setAnimState(char [0-1024], int16/1000, int16) broadcast ram ownsend airecv;
   setEmoteState(int16, int16/1000, int16) broadcast ram ownsend;
-  setEmoteAccess(uint8[] = [1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]) required ownrecv db;
+  setEmoteAccess(uint8[] = [1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]) required ownrecv db;
   setCustomMessages(uint16[] = []) required ownrecv db;
   setSleepAutoReply(uint32) broadcast clsend ownrecv;
   setResistanceMessages(pair16 [] = []) required ownrecv db;
@@ -509,6 +508,7 @@ dclass DistributedToon : DistributedPlayer {
   setSpeedChatStyleIndex(uint8 = 1) required ownsend broadcast db;
   setTrophyScore(uint16) broadcast ownrecv ram;
   setTeleportAccess(uint32[] = []) required ownrecv db;
+  setScavengerHunt(uint32[] = []) required ownrecv db;
   checkTeleportAccess(uint16) airecv ownsend;
   setTeleportOverride(uint8) clsend airecv;
   battleSOS(uint32) ownrecv clsend;
@@ -606,7 +606,7 @@ dclass DistributedToon : DistributedPlayer {
   logMessage(char [0-1024]) ownsend airecv;
   forceLogoutWithNotify() ownrecv;
   setPinkSlips(uint8 = 0) required ownrecv db;
-  setNametagStyle(uint8 = 0) broadcast required ram db;
+  setNametagStyle(uint8 = 0) required broadcast ownrecv db;
   setMail(simpleMail []) ownrecv;
   setNumMailItems(uint32) airecv;
   setSimpleMailNotify(uint8) ownrecv airecv;
@@ -626,6 +626,7 @@ dclass DistributedToon : DistributedPlayer {
   setDISLid(uint32) ram db airecv;
   flagAv(uint32, uint16, string []) airecv ownsend;
   setAnimalSound(uint8 index) ram broadcast ownrecv;
+  setBuffs(uint32[] = []) required ownrecv db;
 };
 
 dclass DistributedCCharBase : DistributedObject {
@@ -1477,7 +1478,7 @@ dclass PurchaseManager : DistributedObject {
   setPlayerIds(uint32, uint32, uint32, uint32) required broadcast ram;
   setNewbieIds(uint32[]) required broadcast ram;
   setMinigamePoints(uint8, uint8, uint8, uint8) required broadcast ram;
-  setPlayerMoney(uint8, uint8, uint8, uint8) required broadcast ram;
+  setPlayerMoney(uint16, uint16, uint16, uint16) required broadcast ram;
   setPlayerStates(uint8, uint8, uint8, uint8) required broadcast ram;
   setCountdown(int16) required broadcast ram;
   setMetagameRound(int8) required broadcast ram;
@@ -1509,6 +1510,8 @@ dclass TutorialManager : DistributedObject {
 
 dclass CatalogManager : DistributedObject {
   startCatalog() airecv clsend;
+  fetchPopularItems() airecv clsend;
+  setPopularItems(blob);
 };
 
 dclass DistributedMyTest : DistributedObject {
@@ -1769,7 +1772,14 @@ dclass DistributedKartShopInterior : DistributedObject {
   setZoneIdAndBlock(uint32, uint16) required broadcast ram;
 };
 
+dclass DistributedBankInterior : DistributedObject {
+  setZoneIdAndBlock(uint32, uint16) required broadcast ram;
+  setState(string, int16) broadcast ram;
+};
 
+dclass DistributedLibraryInterior : DistributedObject {
+  setZoneIdAndBlock(uint32, uint16) required broadcast ram;
+};
 
 dclass DistributedDoor : DistributedObject {
   setZoneIdAndBlock(uint32, uint32) required broadcast ram;
@@ -1807,6 +1817,10 @@ dclass DistributedNPCToonBase : DistributedNode {
   setPageNumber(int16, int8, int16) broadcast ram clsend;
   avatarEnter() airecv clsend;
   freeAvatar();
+  setHat(uint8 = 0, uint8 = 0, uint8 = 0) broadcast ram;
+  setGlasses(uint8 = 0, uint8 = 0, uint8 = 0) broadcast ram;
+  setBackpack(uint8 = 0, uint8 = 0, uint8 = 0) broadcast ram;
+  setShoes(uint8 = 0, uint8 = 0, uint8 = 0) broadcast ram;
 };
 
 dclass DistributedNPCToon : DistributedNPCToonBase {
@@ -1823,12 +1837,10 @@ dclass DistributedSmartNPC : DistributedNPCToonBase {
   dismiss(uint32, uint16) broadcast ram;
 };
 
-dclass DistributedBankerBobNPC : DistributedNPCToonBase {
-  setMovie(uint8, uint32, uint32, uint16[], int16) broadcast ram;
+dclass DistributedNPCBanker : DistributedNPCToonBase {
+  setMovie(uint8, uint32, int16) broadcast ram;
   setMovieDone() airecv clsend;
-  chooseQuest(uint16) airecv clsend;
-  chooseTrack(int8) airecv clsend;
-  exitInteraction() clsend;
+  transferMoney(int16) airecv clsend;
 };
 
 dclass DistributedNPCSpecialQuestGiver : DistributedNPCToonBase {
@@ -2019,7 +2031,7 @@ dclass DistributedBoardingParty : DistributedObject {
   postGroupInfo(uint32, uint32[], uint32[], uint32[]) broadcast;
   informDestinationInfo(uint8) clsend airecv;
   postDestinationInfo(uint8) broadcast;
-  postInvite(uint32, uint32) broadcast;
+  postInvite(uint32, uint32, bool) broadcast;
   postInviteCanceled() broadcast;
   postKick(uint32) broadcast;
   postKickReject(uint32, uint32, uint32) broadcast;
@@ -2128,12 +2140,9 @@ dclass DistributedBank : DistributedFurnitureItem {
   transferMoney(int16) airecv clsend;
 };
 
-dclass DistributedBankerMgr : DistributedObject {
-  enterBank() clsend;
-  avatarEnter() airecv clsend;
-  freeAvatar();
-  setMovie(uint8, uint32, int16) broadcast ram;
-  transferMoney(int16) airecv clsend;
+dclass DistributedBankCollectable : DistributedObject {
+  requestGrab() airecv clsend;
+  grab(uint32) broadcast ram;
 };
 
 dclass DistributedCloset : DistributedFurnitureItem {
@@ -2167,6 +2176,7 @@ dclass DistributedPhone : DistributedFurnitureItem {
   requestPurchaseResponse(uint16, int8);
   requestGiftPurchaseMessage(uint16, uint32, blob, int32) airecv clsend;
   requestGiftPurchaseResponse(uint16, int8);
+  purchaseItemComplete();
 };
 
 dclass DistributedFireworkShow : DistributedObject {
@@ -2482,17 +2492,21 @@ dclass DistributedGreenToonEffectMgr : DistributedObject {
 };
 
 dclass DistributedResistanceEmoteMgr : DistributedObject {
-  addResistanceEmote() airecv clsend;
+  addResistanceEmote() clsend airecv;
 };
 
 dclass DistributedScavengerHuntTarget : DistributedObject {
   attemptScavengerHunt() airecv clsend;
 };
 
-dclass DistributedTrickOrTreatTarget : DistributedScavengerHuntTarget {
+dclass DistributedTrickOrTreatTarget : DistributedObject {
+  doScavengerHunt(int8);
+  requestScavengerHunt() airecv clsend;
 };
 
-dclass DistributedWinterCarolingTarget : DistributedScavengerHuntTarget {
+dclass DistributedWinterCarolingTarget : DistributedObject {
+  doScavengerHunt(int8) broadcast;
+  requestScavengerHunt() airecv clsend;
 };
 
 dclass DistributedDataStoreManager : DistributedObject {
@@ -3267,13 +3281,8 @@ dclass ClientServicesManager : DistributedObjectGlobal {
   deleteAvatar(uint32 avId) clsend;
 
   chooseAvatar(uint32 avId) clsend;
-};
 
-dclass SystemServicesManager : DistributedObjectGlobal {
-  systemMessage(string message, uint32 parentId);
-};
-
-dclass RATManager : DistributedObjectGlobal {
+  systemMessage(string message);
 };
 
 dclass AwardManager : DistributedObjectGlobal {
@@ -3346,8 +3355,9 @@ dclass TTIFriendsManager : DistributedObjectGlobal {
 
   routeTeleportQuery(uint32 toId) clsend;
   teleportQuery(uint32 fromId);
-  routeTeleportResponse(uint32 fromId, uint8 tpAvailable, uint32 defaultShard, uint32 hoodId, uint32 zoneId) clsend;
-  teleportResponse(uint32 toId, uint8 tpAvailable, uint32 defaultShard, uint32 hoodId, uint32 zoneId);
+
+  teleportResponse(uint32 fromId, uint8 tpAvailable, uint32 defaultShard, uint32 hoodId, uint32 zoneId) clsend;
+  setTeleportResponse(uint32 toId, uint8 tpAvailable, uint32 defaultShard, uint32 hoodId, uint32 zoneId);
 
   whisperSCTo(uint32 toId, uint16 msgIndex) clsend;
   setWhisperSCFrom(uint32 fromId, uint16 msgIndex);
@@ -3364,10 +3374,20 @@ dclass TTIFriendsManager : DistributedObjectGlobal {
   submitSecret(string(0-256) secret) clsend;
   submitSecretResponse(int8 status, int32 avId);
 
-
   sendTalkWhisper(uint32 toId, string message) clsend;
   receiveTalkWhisper(uint32 fromId, string message);
 
+  battleSOS(uint32 toId) clsend;
+  setBattleSOS(uint32 fromId);
+
+  teleportGiveup(uint32 toId) clsend;
+  setTeleportGiveup(uint32 fromId);
+
+  whisperSCToontaskTo(uint32, uint32, uint32, uint32, uint8) clsend;
+  setWhisperSCToontaskFrom(uint32, uint32, uint32, uint32, uint8);
+
+  sleepAutoReply(uint32 toId) clsend;
+  setSleepAutoReply(uint32 fromId);
 };
 
 

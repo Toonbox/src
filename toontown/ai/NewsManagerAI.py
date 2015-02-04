@@ -1,8 +1,18 @@
-from direct.directnotify import DirectNotifyGlobal
+from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
 
+
 class NewsManagerAI(DistributedObjectAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory("NewsManagerAI")
+    notify = directNotify.newCategory('NewsManagerAI')
+
+    def announceGenerate(self):
+        DistributedObjectAI.announceGenerate(self)
+
+        self.accept('avatarEntered', self.__handleAvatarEntered)
+
+    def __handleAvatarEntered(self, avatar):
+        if self.air.suitInvasionManager.getInvading():
+            self.air.suitInvasionManager.notifyInvasionBulletin(avatar.getDoId())
 
     def setPopulation(self, todo0):
         pass
@@ -43,8 +53,8 @@ class NewsManagerAI(DistributedObjectAI):
     def setInvasionStatus(self, msgType, cogType, numRemaining, skeleton):
         self.sendUpdate('setInvasionStatus', args=[msgType, cogType, numRemaining, skeleton])
 
-    def setHolidayIdList(self, todo0):
-        pass
+    def setHolidayIdList(self, holidays):
+        self.sendUpdate('setHolidayIdList', holidays)
 
     def holidayNotify(self):
         pass

@@ -4,6 +4,7 @@ from pandac.PandaModules import *
 from otp.ai.AIZoneData import AIZoneDataStore
 from otp.ai.MagicWordManagerAI import MagicWordManagerAI
 from otp.ai.TimeManagerAI import TimeManagerAI
+from otp.ai import BanManagerAI
 from otp.distributed.OtpDoGlobals import *
 from otp.friends.FriendManagerAI import FriendManagerAI
 from toontown.ai import CogPageManagerAI
@@ -14,8 +15,10 @@ from toontown.ai.FishManagerAI import  FishManagerAI
 from toontown.ai.HolidayManagerAI import HolidayManagerAI
 from toontown.ai.NewsManagerAI import NewsManagerAI
 from toontown.ai.QuestManagerAI import QuestManagerAI
+from toontown.ai import BankManagerAI
 from toontown.building.DistributedTrophyMgrAI import DistributedTrophyMgrAI
 from toontown.catalog.CatalogManagerAI import CatalogManagerAI
+from toontown.catalog.PopularItemManagerAI import PopularItemManagerAI
 from toontown.coghq import CountryClubManagerAI
 from toontown.coghq import FactoryManagerAI
 from toontown.coghq import LawOfficeManagerAI
@@ -82,16 +85,16 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.wantAchievements = self.config.GetBool('want-achievements', True)
         self.wantYinYang = self.config.GetBool('want-yin-yang', False)
         self.baseXpMultiplier = self.config.GetFloat('base-xp-multiplier', 1.0)
+        self.wantHalloween = self.config.GetBool('want-halloween', False)
+        self.wantChristmas = self.config.GetBool('want-christmas', False)
 
         self.cogSuitMessageSent = False
 
     def createManagers(self):
-        self.ssm = simbase.air.generateGlobalObject(OTP_DO_ID_SYSTEM_SERVICES_MANAGER, 'SystemServicesManager')
         self.timeManager = TimeManagerAI(self)
         self.timeManager.generateWithRequired(2)
         self.magicWordManager = MagicWordManagerAI(self)
         self.magicWordManager.generateWithRequired(2)
-        self.holidayManager = HolidayManagerAI(self)
         self.newsManager = NewsManagerAI(self)
         self.newsManager.generateWithRequired(2)
         self.safeZoneManager = SafeZoneManagerAI(self)
@@ -101,6 +104,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.friendManager = FriendManagerAI(self)
         self.friendManager.generateWithRequired(2)
         self.questManager = QuestManagerAI(self)
+        self.banManager = BanManagerAI.BanManagerAI(self)
         self.achievementsManager = AchievementsManagerAI(self)
         self.suitInvasionManager = SuitInvasionManagerAI(self)
         self.trophyMgr = DistributedTrophyMgrAI(self)
@@ -108,6 +112,8 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.cogSuitMgr = CogSuitManagerAI.CogSuitManagerAI(self)
         self.promotionMgr = PromotionManagerAI.PromotionManagerAI(self)
         self.cogPageManager = CogPageManagerAI.CogPageManagerAI()
+        self.bankManager = BankManagerAI.BankManagerAI(self)
+        self.holidayManager = HolidayManagerAI(self)
         if self.wantFishing:
             self.fishManager = FishManagerAI(self)
         if self.wantHousing:
@@ -115,6 +121,7 @@ class ToontownAIRepository(ToontownInternalRepository):
             self.estateManager.generateWithRequired(2)
             self.catalogManager = CatalogManagerAI(self)
             self.catalogManager.generateWithRequired(2)
+            self.popularItemManager = PopularItemManagerAI(self)
             self.deliveryManager = self.generateGlobalObject(
                 OTP_DO_ID_TOONTOWN_DELIVERY_MANAGER, 'DistributedDeliveryManager')
         if self.wantPets:
@@ -163,19 +170,19 @@ class ToontownAIRepository(ToontownInternalRepository):
 
     def handleConnected(self):
         self.districtId = self.allocateChannel()
-        self.notify.info('Creating ToontownDistrictAI({0})...'.format(self.districtId))
+        self.notify.info('Creating ToontownDistrictAI(%d)...' % self.districtId)
         self.distributedDistrict = ToontownDistrictAI(self)
         self.distributedDistrict.setName(self.districtName)
         self.distributedDistrict.generateWithRequiredAndId(
             self.districtId, self.getGameDoId(), 2)
-        self.notify.info('Claiming ownership of channel ID: {0}...'.format(self.districtId))
+        self.notify.info('Claiming ownership of channel ID: %d...' % self.districtId)
         self.claimOwnership(self.districtId)
 
         self.districtStats = ToontownDistrictStatsAI(self)
         self.districtStats.settoontownDistrictId(self.districtId)
         self.districtStats.generateWithRequiredAndId(
             self.allocateChannel(), self.getGameDoId(), 3)
-        self.notify.info('Created ToontownDistrictStats({0})'.format(self.districtStats.doId))
+        self.notify.info('Created ToontownDistrictStats(%d)' % self.districtStats.doId)
 
         self.notify.info('Creating managers...')
         self.createManagers()
@@ -205,7 +212,7 @@ class ToontownAIRepository(ToontownInternalRepository):
             phaseNum = ToontownGlobals.phaseMap[hoodId]
         else:
             phaseNum = ToontownGlobals.streetPhaseMap[hoodId]
-        return 'phase_{0}/dna/{1}_{2}.dna'.format(phaseNum, hood, zoneId)
+        return 'phase_%s/dna/%s_%s.pdna' % (phaseNum, hood, zoneId)
 
     def loadDNAFileAI(self, dnastore, filename):
         return loadDNAFileAI(dnastore, filename)

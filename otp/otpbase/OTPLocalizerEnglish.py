@@ -190,8 +190,7 @@ CRBootedReasons = {1: 'An unexpected problem has occurred.  Your connection has 
  151: 'You have been logged out by an administrator working on the servers.',
  152: "There has been a reported violation of our Terms of Use connected to '%(name)s'. For more details, please review the message sent to the e-mail address associated with '%(name)s'.",
  153: 'The district you were playing on has been reset.  Everyone who was playing on that district has been disconnected.  However, you should be able to connect again and go right back into the game.',
- 154: 'The game is temporarily closing for maintenance.  Everyone has been logged out.',
- 155: 'You were kicked by a Moderator. Behave next time!',
+ 154: 'Toontown Infinite is now temporarily closed for maintenance. Everyone who was playing has been disconnected from the game.\n\nFor more information, please visit the Toontown Infinite website.',
  288: 'Sorry, you have used up all of your available minutes this month.',
  349: 'Sorry, you have used up all of your available minutes this month.'}
 CRBootedReasonUnknownCode = 'An unexpected problem has occurred (error code %s).  Your connection has been lost, but you should be able to connect again and go right back into the game.'
@@ -204,6 +203,8 @@ CRServerConstantsProxyNoPort = 'Unable to contact %s.\n\nYou are communicating t
 CRServerConstantsProxyNoCONNECT = 'Unable to contact %s.\n\nYou are communicating to the internet via a proxy, but your proxy does not support the CONNECT method.\n\nYou must enable this capability, or disable your proxy, in order to play.  If your proxy has been provided by your ISP, you must contact your ISP to request them to enable this capability.'
 CRServerConstantsTryAgain = 'Unable to contact %s.\n\nThe account server might be temporarily down, or there might be some problem with your internet connection.\n\nTry again?'
 CRServerDateTryAgain = 'Could not get server date from %s. Try again?'
+CRMaintenanceCountdownMessage = 'Attention Toons! Toontown Infinite will be going down for maintenance in %d minutes.'
+CRMaintenanceMessage = 'Attention Toons! Toontown Infinite is now going down for maintenance.'
 AfkForceAcknowledgeMessage = 'Your toon got sleepy and went to bed.'
 PeriodTimerWarning = 'Your available time is almost over!'
 PeriodForceAcknowledgeMessage = 'Sorry, you have used up all of your available time. Please exit to purchase more.'
@@ -300,7 +301,7 @@ SCMenuWinter = 'WINTER'
 SCMenuSellbotInvasion = 'SELLBOT INVASION'
 SCMenuFieldOffice = 'FIELD OFFICES'
 SCMenuIdesOfMarch = 'GREEN'
-SCMenuRogerDog = 'roger dog'
+ScMenuBugs = 'Bugs'
 FriendSecretNeedsPasswordWarningTitle = 'Parental Controls'
 FriendSecretNeedsParentLoginWarning = 'To get or enter a True Friend Code, log in with the Parent Account.  You can disable this prompt by changing your True Friend options.'
 FriendSecretNeedsPasswordWarning = 'To get or enter a True Friend Code, you must enter the Parent Account Password.  You can disable this prompt by changing your True Friends options.'
@@ -467,7 +468,8 @@ EmoteList = ['Wave',
  'Cry',
  'Delighted',
  'Furious',
- 'Laugh']
+ 'Laugh',
+ 'Taunt']
 EmoteWhispers = ['%s waves.',
  '%s is happy.',
  '%s is sad.',
@@ -492,7 +494,8 @@ EmoteWhispers = ['%s waves.',
  '%s is crying.',
  '%s is delighted.',
  '%s is furious.',
- '%s is laughing.']
+ '%s is laughing.',
+ '%s taunts you.']
 EmoteFuncDict = {'Wave': 0,
  'Happy': 1,
  'Sad': 2,
@@ -518,14 +521,7 @@ EmoteFuncDict = {'Wave': 0,
  'Delighted': 22,
  'Furious': 23,
  'Laugh': 24,
- 'Sing Note G1': 25,
- 'Sing Note A': 26,
- 'Sing Note B': 27,
- 'Sing Note C': 28,
- 'Sing Note D': 29,
- 'Sing Note E': 30,
- 'Sing Note F': 31,
- 'Sing Note G2': 32}
+ 'Taunt': 25}
 SuitBrushOffs = {'f': ["I'm late for a meeting."],
  'p': ['Push off.'],
  'ym': ['Yes Man says NO.'],
@@ -866,7 +862,7 @@ SuitFaceoffTaunts = {'b': ['Do you have a donation for me?',
         "I'm 'two' much for you.",
         "You don't know who you're facing.",
         'Are you ready to face your doom?',
-        "My eyes are on you"],
+        "My eyes are on you."],
  'dt': ["I'm gonna give you double the trouble.",
         'See if you can stop my double cross.',
         'I serve a mean double-\x04DECKER.',
@@ -899,7 +895,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  103: 'Hey!',
  104: 'Howdy!',
  105: 'Hi everybody!',
- 106: 'Welcome to Toontown!',
+ 106: 'Welcome to Toontown Infinite!',
  107: "What's up?",
  108: 'How are you doing?',
  109: 'Hello?',
@@ -1426,7 +1422,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  10000: 'The choice is yours!',
  10001: 'Who are you voting for?',
  10002: "I'm pickin' Chicken!",
- 10003: 'Vote now! Vote Cow!',
+ 10003: 'Trick or Treat!',
  10004: 'Go bananas! Vote Monkey!',
  10005: 'Be a honey! Vote Bear!',
  10006: 'Think big! Vote Pig!',
@@ -1942,7 +1938,19 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  30418: "It's the Boss!",
  30450: "It's easy to be green!",
  30451: 'Visit Green Bean Jeans and you can be green too!',
- 30452: "It's on Oak Street in Daisy Gardens."}
+ 30452: "It's on Oak Street in Daisy Gardens.",
+ 30500: "Welcome to Toontown Infinite!",
+ 30501: "The Possibilities are Infinite.",
+ 30502: "Are you livestreaming?",
+ 30503: "I'm livestreaming right now!",
+ 30504: "I can't wait until the next Toontown Infinite update!",
+ 30505: "Did you know the TTI team works overtime to make the experience the best it can be?",
+ 30506: "I can't stand that bug!",
+ 30507: "Have you found any bugs yet?",
+ 30508: "I hope that bug gets fixed soon.",
+ 30509: "What types of bugs have you ran into so far?",
+ 30510: "Those bugs can get more obnoxious than the Cogs sometimes.",
+ 30511: "You can report bugs by clicking the Report a Bug button on the Toontown Infinite launcher."}
 SpeedChatStaticTextPirates = {50001: 'Aye',
  50002: 'Nay',
  50003: 'Yes',
