@@ -302,9 +302,10 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         self._isGM = type != 0
         self._gmType = None
         if self._isGM:
-            self._gmType = type
+            self._gmType = type - 1
         if self._isGM != wasGM:
             self._handleGMName()
+        return
 
     def setExperience(self, experience):
         self.experience = Experience.Experience(experience, self)
@@ -2575,28 +2576,36 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         name = self.name
         self.setDisplayName(name)
         if self._isGM:
+            self.setNametagStyle(6)
             self.setGMIcon(self._gmType)
-            self.gmToonLockStyle = False
+            self.gmToonLockStyle = True
         else:
             self.gmToonLockStyle = False
             self.removeGMIcon()
+            self.setNametagStyle(0)
 
-    def setGMIcon(self, gmType=None):
+    def setGMIcon(self, gmType = None):
         if hasattr(self, 'gmIcon') and self.gmIcon:
             return
         if not gmType:
             gmType = self._gmType
-        icons = loader.loadModel('phase_3/models/props/gm_icons.bam')
-        searchString = '**/access_level_' + str(gmType)
-        self.gmIcon = icons.find(searchString)
-        np = NodePath(self.nametag.getIcon())
-        if np.isEmpty():
+        iconInfo = (('phase_3.5/models/gui/tt_m_gui_gm_toontroop_whistle', '**/*whistleIcon*', 4),
+         ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_whistle', '**/*whistleIcon*', 4),
+         ('phase_3.5/models/gui/tt_m_gui_gm_toonResistance_fist', '**/*fistIcon*', 4),
+         ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_getConnected', '**/*whistleIcon*', 4))
+        if gmType > len(iconInfo) - 1:
             return
-        self.gmIcon.flattenStrong()
+        modelName, searchString, scale = iconInfo[gmType]
+        icons = loader.loadModel(modelName)
+        self.gmIcon = icons.find(searchString)
+        self.gmIcon.setScale(scale)
+        np = NodePath(self.nametag.getNameIcon())
         self.gmIcon.reparentTo(np)
-        self.gmIcon.setScale(1.6)
-        self.gmIcon.setZ(2.05)
         self.setTrophyScore(self.trophyScore)
+        self.gmIcon.setZ(-2.5)
+        self.gmIcon.setY(0.0)
+        self.gmIcon.setColor(Vec4(1.0, 1.0, 1.0, 1.0))
+        self.gmIcon.setTransparency(1)
         self.gmIconInterval = LerpHprInterval(self.gmIcon, 3.0, Point3(0, 0, 0), Point3(-360, 0, 0))
         self.gmIconInterval.loop()
 
@@ -2606,7 +2615,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if gmType > len(iconInfo) - 1:
             return
         self.gmIcon = loader.loadModel(iconInfo[gmType])
-        self.gmIcon.reparentTo(NodePath(self.nametag.getIcon()))
+        self.gmIcon.reparentTo(NodePath(self.nametag.getNameIcon()))
         self.gmIcon.setScale(3.25)
         self.setTrophyScore(self.trophyScore)
         self.gmIcon.setZ(1.0)
