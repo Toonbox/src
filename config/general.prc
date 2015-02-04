@@ -91,7 +91,7 @@ want-photo-game #f
 want-travel-game #f
 
 # Picnic table board games:
-want-game-tables #f
+want-game-tables #t
 
 # Cog headquarters:
 want-cog-headquarters #t
