@@ -46,6 +46,7 @@ class ToontownLoadingScreen:
 		self.__expectedCount = 0
 		self.__count = 0
 		self.gui = loader.loadModel('phase_3/models/gui/progress-background.bam')
+		self.title = DirectLabel(guiId='ToontownLoadingScreenTitle', parent=self.gui, relief=None, pos=(base.a2dCenter+0, 0, 0.235), text='', textMayChange=1, text_scale=0.1, text_fg=(0.00, 0.58, 0.996, 1), text_align=TextNode.ACenter, text_font=ToontownGlobals.getSignFont())
 		
 	def destroy(self):
 		pass
