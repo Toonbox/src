@@ -51,7 +51,9 @@ class ToontownLoadingScreen:
 	    return
 		
 	def destroy(self):
-	    pass
+	    self.title.destroy()
+	    self.waitBar.destroy()
+	    self.gui.removeNode()
 		
 	def getTip(self, todo):
 	    pass
