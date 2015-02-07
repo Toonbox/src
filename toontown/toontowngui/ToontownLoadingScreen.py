@@ -68,7 +68,7 @@ class ToontownLoadingScreen:
         self.gui.removeNode()
         self.logo.removeNode()
 
-    def getTip(self, gui, tipCategory):
+    def getTip(self, tipCategory):
         return TTLocalizer.TipTitle + ' ' + random.choice(TTLocalizer.TipDict.get(tipCategory))
 
     def begin(self, range, label, gui, tipCategory, zoneId):
