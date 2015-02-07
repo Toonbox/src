@@ -55,8 +55,8 @@ class ToontownLoadingScreen:
 	    self.waitBar.destroy()
 	    self.gui.removeNode()
 		
-	def getTip(self, todo):
-	    pass
+	def getTip(self, tipCategory):
+	    return TTLocalizer.TipTitle + '\n' + random.choice(TTLocalizer.TipDict.get(tipCategory))
 		
 	def begin(self, todo, todo1, todo2, todo3):
 	    pass
