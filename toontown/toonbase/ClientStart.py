@@ -116,6 +116,8 @@ backgroundNodePath = aspect2d.attachNewNode(backgroundNode, 0)
 backgroundNodePath.setPos(0.0, 0.0, 0.0)
 backgroundNodePath.setScale(render2d, VBase3(1))
 backgroundNodePath.find('**/fg').hide()
+backgroundNodePath.find('**/bar_shadow').setPos(0, 0, 0.1)
+backgroundNodePath.find('**/bar_shadow').setScale(0.83, 1, 1)
 logo = OnscreenImage(
     image='phase_3/maps/toontown-logo.png',
     scale=(1 / (4.0/3.0), 1, 1 / (4.0/3.0)),
