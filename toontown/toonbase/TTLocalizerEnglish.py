@@ -1954,12 +1954,12 @@ ReportPanelCategoryHacking = 'Hacking'
 ReportPanelConfirmations = ('You are about to report that %s has used obscene, bigoted or sexually explicit language.',
  'You are about to report that %s is being unsafe by giving out or requesting a phone number, address, last name, email address, password or account name.',
  'You are about to report that %s is bullying, harassing, or using extreme behavior to disrupt the game.',
- "You are about to report that %s has created a name that does not follow the Toontown Infinite rules.",
+ "You are about to report that %s has created a name that does not follow the Toonbox rules.",
  'You are about to report that %s has hacked/tampered with the game or used third party software.')
 ReportPanelWarning = "We take reporting very seriously. Your report will be viewed by a Moderator who will take appropriate action for anyone breaking our rules. If your account is found to have participated in breaking the rules, or if you make false reports or abuse the 'Report a Player' system, a Moderator may take action against your account. Are you absolutely sure you want to report this player?"
 ReportPanelThanks = 'Thank you! Your report has been sent to a Moderator for review. There is no need to contact us again about the issue. The moderation team will take appropriate action for a player found breaking our rules.'
 ReportPanelRemovedFriend = 'We have automatically removed %s from your Toon Friends List.'
-ReportPanelRemovedPlayerFriend = 'We have automatically removed %s as a Player friend so as such you will not see them as your friend in any Toontown Infinite product.'
+ReportPanelRemovedPlayerFriend = 'We have automatically removed %s as a Player friend so as such you will not see them as your friend in any Toonbox product.'
 ReportPanelAlreadyReported = 'You have already reported %s during this session. A Moderator will review your previous report.'
 IgnorePanelTitle = 'Ignore A Player'
 IgnorePanelAddIgnore = 'Would you like to ignore %s for the rest of this session?'
@@ -2737,7 +2737,7 @@ SuitAttackTaunts = {'Audit': ["I believe your books don't balance.",
               "You aren't above the law!",
               'There should be a law against you.',
               "There's no ex post facto with me!",
-              "The opinions expressed in this attack are not those of Toontown Infinite.",
+              "The opinions expressed in this attack are not those of Toonbox.",
               'We cannot be held responsible for damages suffered in this attack.',
               'Your results for this attack may vary.',
               'This attack is void where prohibited.',
@@ -4020,7 +4020,7 @@ FriendInviterPlayer = 'Player'
 FriendInviterThatPlayer = 'That player'
 FriendInviterBegin = 'What type of friend would you like to make?'
 FriendInviterToonFriendInfo = 'A friend only in Toontown'
-FriendInviterPlayerFriendInfo = 'A friend across the Toontown Infinite network'
+FriendInviterPlayerFriendInfo = 'A friend across the Toonbox network'
 FriendInviterToonTooMany = 'You have too many toon friends to add another one now. You will have to remove some toon friends if you want to make friends with %s. You could also try making player friends them.'
 FriendInviterPlayerTooMany = 'You have too many player friends to add another one now. You will have to remove some player friends if you want to make friends with %s. You could also try making toon friends with them.'
 FriendInviterToonAlready = '%s is already your toon friend.'
@@ -4085,7 +4085,7 @@ LauncherPhaseNames = {0: 'Initialization',
  12: Bossbot + ' HQ',
  13: 'Parties'}
 LauncherProgress = '%(name)s (%(current)s of %(total)s)'
-LauncherStartingMessage = "Starting Toontown Infinite... "
+LauncherStartingMessage = "Starting Toonbox... "
 LauncherDownloadFile = 'Downloading update for ' + LauncherProgress + '...'
 LauncherDownloadFileBytes = 'Downloading update for ' + LauncherProgress + ': %(bytes)s'
 LauncherDownloadFilePercent = 'Downloading update for ' + LauncherProgress + ': %(percent)s%%'
@@ -4095,16 +4095,16 @@ LauncherExtractingFile = 'Extracting update for ' + LauncherProgress + '...'
 LauncherExtractingPercent = 'Extracting update for ' + LauncherProgress + ': %(percent)s%%'
 LauncherPatchingFile = 'Applying update for ' + LauncherProgress + '...'
 LauncherPatchingPercent = 'Applying update for ' + LauncherProgress + ': %(percent)s%%'
-LauncherConnectProxyAttempt = 'Connecting to Toontown Infinite: %s (proxy: %s) attempt: %s'
-LauncherConnectAttempt = 'Connecting to Toontown Infinite: %s attempt %s'
-LauncherDownloadServerFileList = 'Updating Toontown Infinite...'
-LauncherCreatingDownloadDb = 'Updating Toontown Infinite...'
-LauncherDownloadClientFileList = 'Updating Toontown Infinite...'
-LauncherFinishedDownloadDb = 'Updating Toontown Infinite... '
-LauncherStartingGame = 'Starting Toontown Infinite...'
-LauncherRecoverFiles = 'Updating Toontown Infinite. Recovering files...'
+LauncherConnectProxyAttempt = 'Connecting to Toonbox: %s (proxy: %s) attempt: %s'
+LauncherConnectAttempt = 'Connecting to Toonbox: %s attempt %s'
+LauncherDownloadServerFileList = 'Updating Toonbox...'
+LauncherCreatingDownloadDb = 'Updating Toonbox...'
+LauncherDownloadClientFileList = 'Updating Toonbox...'
+LauncherFinishedDownloadDb = 'Updating Toonbox... '
+LauncherStartingGame = 'Starting Toonbox...'
+LauncherRecoverFiles = 'Updating Toonbox. Recovering files...'
 LauncherCheckUpdates = 'Checking for updates for ' + LauncherProgress
-LauncherVerifyPhase = 'Updating Toontown Infinite...'
+LauncherVerifyPhase = 'Updating Toonbox...'
 LoadingDownloadWatcherUpdate = 'Loading %s'
 AvatarChoiceMakeAToon = 'Make A\nToon'
 AvatarChoicePlayThisToon = 'Play\nThis Toon'
@@ -4298,7 +4298,7 @@ MusicEncntrGeneralBg = 'Encounter With Cogs'
 MusicTcSzActivity = 'Toontorial Medley'
 MusicTcSz = 'Strolling Along'
 MusicCreateAToon = 'The New Toon in Town'
-MusicTtiTheme = 'The Toontown Infinite Theme'
+MusicTtiTheme = 'The Toonbox Theme'
 MusicTtTheme = 'The Toontown Theme'
 MusicMinigameRace = 'Slow and Steady'
 MusicMgPairing = 'Remember Me?'
@@ -5609,7 +5609,7 @@ QuestScriptTutorialBlocker_3 = "Oh! You don't know how to use SpeedChat!"
 QuestScriptTutorialBlocker_4 = 'Click on the button to say something.'
 QuestScriptTutorialBlocker_5 = 'Very good!\x07Where you are going there are many Toons to talk to.'
 QuestScriptTutorialBlocker_6 = "If you want to chat with other Toons using the keyboard, there's another button you can use."
-QuestScriptTutorialBlocker_7 = "It's called the SpeedChat Plus button. You need to turn on Speedchat Plus in your Account Manager on the Toontown Infinite Website to use it."
+QuestScriptTutorialBlocker_7 = "It's called the SpeedChat Plus button. You need to turn on Speedchat Plus in your Account Manager on the Toonbox Website to use it."
 QuestScriptTutorialBlocker_8 = 'Good luck! See you later!'
 QuestScriptGagShop_1 = 'Welcome to the Gag Shop!'
 QuestScriptGagShop_1a = 'This is where Toons come to buy gags to use against the Cogs.'
@@ -8324,36 +8324,36 @@ TipDict = {TIP_NONE: ('',),
                'Open or close your Shticker Book by pressing the "F8" key.',
                'You can look up by pressing the "Page Up" key and look down by pressing the "Page Down" key.',
                'Press the "Control" key to jump.',
-               'Press the "F9" key to take a screenshot, which will be saved in your Toontown Infinite folder on your computer.',
+               'Press the "F9" key to take a screenshot, which will be saved in your Toonbox folder on your computer.',
                'You can change your screen resolution, adjust audio, and control other options on the Options Page in the Shticker Book.',
                "Try on your friend's clothing at the closet in their house.",
                'You can go to your house using the "Go Home" button on your map.',
                'Every time you turn in a completed ToonTask your Laff points are automatically refilled.',
                'You can browse the selection at Clothing Stores even without a clothing ticket.',
                'Rewards for some ToonTasks allow you to carry more gags and Jellybeans.',
-               'You can have up to 50 friends on your Friends List.',
+               'You can have up to 200 friends on your Friends List.',
                'Some ToonTask rewards let you teleport to playgrounds in Toontown by using the Map Page in the Shticker Book.',
                'Increase your Laff points in the Playgrounds by collecting treasures like stars and ice cream cones.',
-               'To heal quickly after a battle, go to your estate and play with your Doodle.',
+               #'To heal quickly after a battle, go to your estate and play with your Doodle.',
                'Change to different views of your Toon by pressing the Tab Key.',
                'Sometimes you can find several different ToonTasks offered for the same reward. Shop around!',
                'Finding friends with similar ToonTasks is a fun way to progress through the game.',
-               'You never need to save your Toontown progress. The Toontown Infinite servers continually save all the necessary information.',
+               'You never need to save your Toontown progress. The Toonbox servers continually save all the necessary information.',
                'You can whisper to other Toons either by clicking on them or by selecting them from your Friends List.',
                'Some SpeedChat phrases play emotion animations on your Toon.',
                'If the area you are in is crowded, try changing Districts. Go to the District Page in the Shticker Book and select a different one.',
                'If you actively rescue buildings you will get a bronze, silver, or gold star above your Toon.',
                'If you rescue enough buildings to get a star above your head you may find your name on the blackboard in a Toon HQ.',
                'Rescued buildings are sometimes recaptured by the Cogs. The only way to keep your star is to go out and rescue more buildings!',
-               'The names of your True Friends will appear in Blue.',
+               #'The names of your True Friends will appear in Blue.',
                'See if you can collect all the fish in Toontown!',
                'Different ponds hold different fish. Try them all!',
                'When your fishing bucket is full sell your fish to the Fishermen in the Playgrounds.',
-               'You can sell your fish to the Fishermen or inside Pet Shops.',
+               'You can sell your fish to the Fishermen',# or inside Pet Shops.',
                'Stronger fishing rods catch heavier fish but cost more Jellybeans to use.',
                'You can purchase stronger fishing rods in the Cattlelog.',
-               'Heavier fish are worth more Jellybeans to the Pet Shop.',
-               'Rare fish are worth more Jellybeans to the Pet Shop.',
+               #'Heavier fish are worth more Jellybeans to the Pet Shop.',
+               #'Rare fish are worth more Jellybeans to the Pet Shop.',
                'You can sometimes find bags of Jellybeans while fishing.',
                'Some ToonTasks require fishing items out of the ponds.',
                'Fishing ponds in the Playgrounds have different fish than ponds on the streets.',
@@ -8363,10 +8363,10 @@ TipDict = {TIP_NONE: ('',),
                'You can see what fish you have collected in your Shticker Book.',
                'Some fishing trophies reward you with a Laff boost.',
                'Fishing is a good way to earn more Jellybeans.',
-               'Adopt a Doodle at the Pet Shop!',
-               'Pet Shops get new Doodles to sell every day.',
-               'Visit the Pet Shops every day to see what new Doodles they have.',
-               'Different neighborhoods have different Doodles offered for adoption.',
+               #'Adopt a Doodle at the Pet Shop!',
+               #'Pet Shops get new Doodles to sell every day.',
+               #'Visit the Pet Shops every day to see what new Doodles they have.',
+               #'Different neighborhoods have different Doodles offered for adoption.',
                "Show off your stylin' ride and turbo-boost your Laff limit at Goofy Speedway.",
                'Enter Goofy Speedway through the tire-shaped tunnel in Toontown Central Playground.',
                'Earn Laff points at Goofy Speedway.',
@@ -8447,20 +8447,20 @@ TipDict = {TIP_NONE: ('',),
              'Earn Lawbot disguise suit parts as rewards for completing ToonTasks for Professor Flake.',
              "It pays to be puzzled: the virtual Cogs in Lawbot HQ won't reward you with Jury Notices."),
  TIP_ESTATE: ('Doodles can understand some SpeedChat phrases. Try them!',
-              'Use the "Pet" SpeedChat menu to ask your Doodle to do tricks.',
-              "You can teach Doodles tricks with training lessons from Clarabelle's Cattlelog.",
-              'Reward your Doodle for doing tricks.',
-              "If you visit a friend's estate, your Doodle will come too.",
-              'Feed your Doodle a Jellybean when it is hungry.',
-              'Click on a Doodle to get a menu where you can Feed, Scratch, and Call him.',
-              'Doodles love company. Invite your friends over to play!',
-              'All Doodles have unique personalities.',
-              'You can return your Doodle and adopt a new one at the Pet Shops.',
-              'When a Doodle performs a trick, the Toons around it heal.',
-              'Doodles become better at tricks with practice. Keep at it!',
-              'More advanced Doodle tricks heal Toons faster.',
-              'Experienced Doodles can perform more tricks before getting tired.',
-              'You can see a list of nearby Doodles in your Friends List.',
+              #'Use the "Pet" SpeedChat menu to ask your Doodle to do tricks.',
+              #"You can teach Doodles tricks with training lessons from Clarabelle's Cattlelog.",
+              #'Reward your Doodle for doing tricks.',
+              #"If you visit a friend's estate, your Doodle will come too.",
+              #'Feed your Doodle a Jellybean when it is hungry.',
+              #'Click on a Doodle to get a menu where you can Feed, Scratch, and Call him.',
+              #'Doodles love company. Invite your friends over to play!',
+              #'All Doodles have unique personalities.',
+              #'You can return your Doodle and adopt a new one at the Pet Shops.',
+              #'When a Doodle performs a trick, the Toons around it heal.',
+              #'Doodles become better at tricks with practice. Keep at it!',
+              #'More advanced Doodle tricks heal Toons faster.',
+              #'Experienced Doodles can perform more tricks before getting tired.',
+              #'You can see a list of nearby Doodles in your Friends List.',
               "Purchase furniture from Clarabelle's Cattlelog to decorate your house.",
               'The bank inside your house holds extra Jellybeans.',
               'The closet inside your house holds extra clothes.',
@@ -8494,7 +8494,9 @@ TipDict = {TIP_NONE: ('',),
                'Screwball Stadium is the easiest track at Goofy Speedway.',
                'Airborne Acres has the most hills and jumps of any track at Goofy Speedway.',
                'Blizzard Boulevard is the most challenging track at Goofy Speedway.'),
- TIP_GOLF: ('Press the Tab key to see a top view of the golf course.', 'Press the Up Arrow key to point yourself towards the golf hole.', 'Swinging the club is just like throwing a pie.')}
+ TIP_GOLF: ('Press the Tab key to see a top view of the golf course.',
+            'Press the Up Arrow key to point yourself towards the golf hole.', 
+            'Swinging the club is just like throwing a pie.')}
 FishGenusNames = {0: 'Balloon Fish',
  2: 'Cat Fish',
  4: 'Clown Fish',

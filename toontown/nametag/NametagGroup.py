@@ -365,6 +365,9 @@ class NametagGroup:
 
     def getNametag3d(self):
         return self.nametag3d
+        
+    def getNameIcon(self):
+        return self.icon
 
     def add(self, nametag):
         self.nametags.add(nametag)
