@@ -49,7 +49,7 @@ class ToontownLoadingScreen:
         self.__expectedCount = 0
         self.__count = 0
         self.gui = loader.loadModel('phase_3/models/gui/progress-background.bam')
-        self.tip = DirectLabel(guiId='ToontownLoadingScreenTip', parent=self.gui, relief=None, pos=(0, 0, 0.16), text='', textMayChange=1, text_scale=0.04, text_fg=(0.4, 0.3, 0.2, 1), text_wordwrap=125, text_align=TextNode.ACenter)
+        self.tip = DirectLabel(guiId='ToontownLoadingScreenTip', parent=self.gui, relief=None, pos=(0, 0, 0.16), text='', textMayChange=1, text_scale=0.04, text_fg=(1, 1, 1, 1), text_shadow=(0, 0, 0, 1), text_wordwrap=125, text_align=TextNode.ACenter)
         self.title = DirectLabel(guiId='ToontownLoadingScreenTitle', parent=self.gui, relief=None, pos=(0, 0, 0.31), text='', textMayChange=1, text_scale=0.1, text_fg=(0.00, 0.58, 0.996, 1), text_align=TextNode.ACenter, text_font=ToontownGlobals.getSignFont())
         self.waitBar = DirectWaitBar(guiId='ToontownLoadingScreenWaitBar', parent=self.gui, frameSize=(base.a2dLeft+(base.a2dRight/2.95), base.a2dRight-(base.a2dRight/2.95), -0.03, 0.03), pos=(0, 0, 0.25), text='')
         logoScale = 0.5625  # Scale for our locked aspect ratio (2:1).
