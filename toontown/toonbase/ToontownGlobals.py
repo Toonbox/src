@@ -169,6 +169,7 @@ TenorTerrace = 4300
 ElmStreet = 5100
 MapleStreet = 5200
 OakStreet = 5300
+PineconePlace = 6100
 LullabyLane = 9100
 PajamaPlace = 9200
 ToonHall = 2513
